@@ -4,10 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
-import 'package:pingable/views/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 
 class Verify extends StatefulWidget {
   final String phoneNumber;
@@ -33,7 +30,7 @@ class _VerifyState extends State<Verify> {
   Future<String> getAuthToken(int userId, String verificationCode) async {
     // Check to see if verification code is valid & retrieve auth token
     var getUrl =
-        'http://10.0.2.2/api/v1/users/$userId/auth_tokens?verification_code=$verificationCode';
+        '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code
@@ -161,11 +158,7 @@ class _VerifyState extends State<Verify> {
     super.dispose();
   }
 
-  void _navigateToHome(BuildContext context, int userId,  String authToken) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Home(userId, authToken),
-        ));
+  void _navigateToHome(BuildContext context, int userId, String authToken) {
+    Navigator.pushNamed(context, '/home');
   }
 }

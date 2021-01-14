@@ -7,15 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:pingable/components/stateful/friends.dart';
 import 'package:pingable/components/stateless/pingableCircle.dart';
 import 'package:pingable/configuration/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/components/stateless/appBarActions.dart';
 
 class Home extends StatefulWidget {
-  final String authToken;
-  final int userId;
-
-  const Home(this.userId, this.authToken);
+  const Home();
 
   @override
-  _HomeState createState() => _HomeState(this.userId, this.authToken);
+  _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -27,9 +26,16 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    fetchPingableStatuses();
+    // fetchPingableStatuses();
     timer = Timer.periodic(
-        Duration(seconds: 10), (Timer t) => fetchPingableStatuses());
+        Duration(seconds: 2), (Timer t) => fetchPingableStatuses());
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    timer.cancel();
+    super.dispose();
   }
 
   Future<bool> getPingableAllStatus(int userId) async {
@@ -92,25 +98,48 @@ class _HomeState extends State<Home> {
     }
   }
 
-  _HomeState(int _userId, String _authToken) {
-    userId = _userId;
-    authToken = _authToken;
+  void loadInitialValues() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId') ?? null;
+    authToken = prefs.getString('authToken') ?? null;
+  }
+
+  _HomeState() {
+    loadInitialValues();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Pingable')),
-      body: Column(
-        children: [
-          Friends(userId),
-          Container(
-              margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-              child: Center(
-                  child:
-                      PingableCircle(currentlyPingable, flipCurrentlyPingable)))
-        ],
-      ),
-    );
+    return new WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Pingable'),
+            actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            buildActionsPopupDialog(context),
+                      );
+                    },
+                    child: Icon(Icons.more_vert),
+                  )),
+            ],
+          ),
+          body: Column(
+            children: [
+              Friends(userId),
+              Container(
+                  margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: Center(
+                      child: PingableCircle(
+                          currentlyPingable, flipCurrentlyPingable)))
+            ],
+          ),
+        ),
+        onWillPop: () async => false);
   }
 }

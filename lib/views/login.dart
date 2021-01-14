@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
 import 'package:pingable/views/verify.dart';
-
+import 'package:pingable/views/createAccount.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -19,6 +19,7 @@ class _LoginState extends State<Login> {
 
   String errorMessage = "";
 
+  // TODO: Remove duplicate copy of this function in createAccount
   Future<int> requestPhoneVerificationCode(String phoneNumber) async {
     // Verify proper phone number format
     RegExp exp = new RegExp(r"^[0-9]{1,3}-[0-9]{3}-[0-9]{3}-[0-9]{4}$");
@@ -37,7 +38,7 @@ class _LoginState extends State<Login> {
     if (resultsGet.length != 1) {
       setState(() {
         errorMessage =
-        "Account does not exist for number $phoneNumber. Please create a new account.";
+            "Account does not exist for number $phoneNumber. Please create a new account.";
       });
       return -1;
     }
@@ -62,61 +63,66 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(
-                width: 350,
-                child: Text(errorMessage,
+    return new WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(title: Text('Login')),
+          body: Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                Container(
+                    width: 350,
+                    child: Text(errorMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red))),
+                Container(
+                  width: 250,
+                  margin: const EdgeInsets.only(top: 5.0, bottom: 15.0),
+                  child: TextField(
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.red))),
-            Container(
-              width: 250,
-              margin: const EdgeInsets.only(top: 5.0, bottom: 15.0),
-              child: TextField(
-                textAlign: TextAlign.center,
-                controller: phoneNumberController,
-                decoration: InputDecoration(
-                  hintText: 'Enter your phone number',
+                    controller: phoneNumberController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your phone number',
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Row(
-              children: [
-                Spacer(),
-                Container(
-                    margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                    child: RaisedButton(
-                      child: Text(
-                        'Login',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                      onPressed: () async {
-                        phoneNumber = phoneNumberController.text;
-                        var result =
-                        await requestPhoneVerificationCode(phoneNumber);
-                        if (result == 0) {
-                          _navigateToVerify(context);
-                        }
-                      },
-                    )),
-                Container(
-                    margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                    child: RaisedButton(
-                      child: Text(
-                        'Create Account',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                      onPressed: () {
-                        print("creating new account");
-                      },
-                    )),
-                Spacer()
-              ],
-            )
-          ])),
-    );
+                Row(
+                  children: [
+                    Spacer(),
+                    Container(
+                        margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                        child: RaisedButton(
+                          child: Text(
+                            'Login',
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          onPressed: () async {
+                            phoneNumber = phoneNumberController.text;
+                            var result =
+                                await requestPhoneVerificationCode(phoneNumber);
+                            if (result == 0) {
+                              _navigateToVerify(context);
+                            }
+                          },
+                        )),
+                    Container(
+                        margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                        child: RaisedButton(
+                          child: Text(
+                            'Create Account',
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          onPressed: () {
+                            _navigateToCreateAccount(context);
+                            print("creating new account");
+                          },
+                        )),
+                    Spacer()
+                  ],
+                )
+              ])),
+        ),
+        onWillPop: () async => false);
   }
 
   @override
@@ -131,6 +137,14 @@ class _LoginState extends State<Login> {
         context,
         MaterialPageRoute(
           builder: (context) => Verify(phoneNumber, userId),
+        ));
+  }
+
+  void _navigateToCreateAccount(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateAccount(),
         ));
   }
 }

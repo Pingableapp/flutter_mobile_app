@@ -4,7 +4,8 @@ import 'package:pingable/views/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  Widget _defaultHome = new Login();
+  // Widget _defaultHome = new Login();
+  String _defaultRoute = "/login";
 
   // Get result of the login function.
   // obtain shared preferences
@@ -14,16 +15,18 @@ void main() async {
   final authToken = prefs.getString('authToken') ?? null;
 
   if (userId != null && authToken != null) {
-    _defaultHome = new Home(userId, authToken);
+    // _defaultHome = new Home();
+    _defaultRoute = "/home";
   }
 
   runApp(MaterialApp(
     title: 'Flutter',
-    home: _defaultHome,
-    // routes: <String, WidgetBuilder>{
-    //   // Set routes for using the Navigator.
-    //   '/home': (BuildContext context) => new Home(),
-    //   '/login': (BuildContext context) => new Login(),
-    // },
+    // home: _defaultHome,
+    initialRoute: _defaultRoute,
+    routes: <String, WidgetBuilder>{
+      // Set routes for using the Navigator.
+      '/home': (BuildContext context) => new Home(),
+      '/login': (BuildContext context) => new Login(),
+    },
   ));
 }

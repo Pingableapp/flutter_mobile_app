@@ -41,9 +41,16 @@ class _FriendsState extends State<Friends> {
   @override
   void initState() {
     super.initState();
-    fetchCurrentFriends();
+    // fetchCurrentFriends();
     timer = Timer.periodic(
         Duration(seconds: 10), (Timer t) => fetchCurrentFriends());
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    timer.cancel();
+    super.dispose();
   }
 
   Color getPrimaryColor(bool active) {
