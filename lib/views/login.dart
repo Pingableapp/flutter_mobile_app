@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pingable/configuration/api.dart';
 import 'package:pingable/views/verify.dart';
+
 
 class Login extends StatefulWidget {
   @override
@@ -29,7 +31,7 @@ class _LoginState extends State<Login> {
     }
 
     // First check to see if phone number already exists
-    var getUrl = 'http://10.0.2.2/api/v1/users?phone_number=$phoneNumber';
+    var getUrl = '$apiEndpoint/users?phone_number=$phoneNumber';
     http.Response resGet = await http.get(getUrl);
     var resultsGet = jsonDecode(resGet.body)["results"];
     if (resultsGet.length != 1) {
@@ -42,7 +44,7 @@ class _LoginState extends State<Login> {
 
     // One result was found so we must request a code for the returned user ID
     userId = resultsGet[0]["id"];
-    var putUrl = 'http://10.0.2.2/api/v1/users/$userId/verification_codes';
+    var putUrl = '$apiEndpoint/users/$userId/verification_codes';
     http.Response resPut = await http.put(putUrl);
     var resultsPut = jsonDecode(resPut.body);
     if (resultsPut != "success") {

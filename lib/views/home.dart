@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/components/stateful/friends.dart';
 import 'package:pingable/components/stateless/pingableCircle.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:pingable/configuration/api.dart';
 
 class Home extends StatefulWidget {
   final String authToken;
@@ -36,7 +34,7 @@ class _HomeState extends State<Home> {
 
   Future<bool> getPingableAllStatus(int userId) async {
     // Check to see if verification code is valid & retrieve auth token
-    var getUrl = 'http://10.0.2.2/api/v1/users/$userId/statuses';
+    var getUrl = '$apiEndpoint/users/$userId/statuses';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code
@@ -55,6 +53,20 @@ class _HomeState extends State<Home> {
     return false;
   }
 
+  Future<bool> updatePingableStatus(int statusID, int statusCode) async {
+    // Check to see if verification code is valid & retrieve auth token
+    var getUrl = '$apiEndpoint/statuses/$statusID';
+    String data = '{"status":"${statusCode.toString()}"}';
+    http.Response resPut = await http.put(getUrl, body: data);
+
+    // Ensure proper status code
+    if (resPut.statusCode != 200) {
+      return false;
+    }
+
+    return true;
+  }
+
   void fetchPingableStatuses() async {
     bool updatedCurrentlyPingable = await getPingableAllStatus(userId);
 
@@ -63,15 +75,19 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void flipCurrentlyPingable() {
+  void flipCurrentlyPingable() async {
+    int statusID = 2;
     if (currentlyPingable) {
+      // Set to pingable to false
+      await updatePingableStatus(statusID, 0);
       setState(() {
         currentlyPingable = false;
       });
     } else {
+      // Set to pingable to true
+      await updatePingableStatus(statusID, 1);
       setState(() {
         currentlyPingable = true;
-      //  TODO: START FROM HERE.... YOU NEED TO CREATE a PUT call for updating user status
       });
     }
   }

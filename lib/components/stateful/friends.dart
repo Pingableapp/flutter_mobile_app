@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pingable/configuration/api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String capitalize(String string) {
@@ -27,6 +28,7 @@ class Friend {
 
 class Friends extends StatefulWidget {
   final int userId;
+
   Friends(this.userId);
 
   @override
@@ -56,7 +58,7 @@ class _FriendsState extends State<Friends> {
 
   Future<List<Friend>> getFriendActivity(int userId) async {
     // Check to see if verification code is valid & retrieve auth token
-    var getUrl = 'http://10.0.2.2/api/v1/users/$userId/relationships';
+    var getUrl = '$apiEndpoint/users/$userId/relationships';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code

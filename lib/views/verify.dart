@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pingable/configuration/api.dart';
 import 'package:pingable/views/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class Verify extends StatefulWidget {
@@ -66,7 +68,7 @@ class _VerifyState extends State<Verify> {
 
     // Attempt to generate a new auth token if first attempt failed
     if (authToken == null) {
-      var putUrl = 'http://10.0.2.2/api/v1/users/$userId/auth_tokens';
+      var putUrl = '$apiEndpoint/users/$userId/auth_tokens';
       http.Response resPut = await http.put(putUrl);
       var resultsPut = jsonDecode(resPut.body);
       if (resultsPut != "success") {
