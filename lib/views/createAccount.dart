@@ -75,7 +75,8 @@ class _CreateAccountState extends State<CreateAccount> {
 
     if (resPost.statusCode == 409) {
       setState(() {
-        errorMessage = "Phone number is already taken! Please login or use another number.";
+        errorMessage =
+            "Phone number or email are already taken! Please login or use another number.";
       });
       return -1;
     }
@@ -90,16 +91,11 @@ class _CreateAccountState extends State<CreateAccount> {
     setState(() {
       errorMessage = "";
     });
-
-    // TODO
-    // TODO
-    // TODO: Start here!!! Return the proper account id that was created. Push that into the verify function!
-    // TODO
-    // TODO
     return 0;
   }
 
   // TODO: Remove duplicate copy of this function in login
+  // Trigger Twillio to send user a verification code
   Future<int> requestPhoneVerificationCode(String phoneNumber) async {
     // Verify proper phone number format
     RegExp exp = new RegExp(r"^[0-9]{1,3}-[0-9]{3}-[0-9]{3}-[0-9]{4}$");
@@ -118,7 +114,7 @@ class _CreateAccountState extends State<CreateAccount> {
     if (resultsGet.length != 1) {
       setState(() {
         errorMessage =
-        "Account does not exist for number $phoneNumber. Please create a new account.";
+            "Account does not exist for number $phoneNumber. Please create a new account.";
       });
       return -1;
     }
@@ -143,105 +139,103 @@ class _CreateAccountState extends State<CreateAccount> {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
-        child: Scaffold(
-          appBar: AppBar(title: Text('Create Account')),
-          body: Center(
-              child: ListView(children: [
-                Container(
-                    margin: const EdgeInsets.only(top: 20.0, bottom: 5.0),
-                    width: 350,
-                    child: Text(errorMessage,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.red))),
-                Container(
-                  width: 250,
-                  margin: const EdgeInsets.only(
-                      top: 5.0, bottom: 20.0, left: 25, right: 25),
-                  child: TextField(
-                    textAlign: TextAlign.left,
-                    controller: phoneNumberController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your phone number',
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 250,
-                  margin: const EdgeInsets.only(
-                      top: 5.0, bottom: 20.0, left: 25, right: 25),
-                  child: TextField(
-                    textAlign: TextAlign.left,
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your email address',
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 250,
-                  margin: const EdgeInsets.only(
-                      top: 5.0, bottom: 20.0, left: 25, right: 25),
-                  child: TextField(
-                    textAlign: TextAlign.left,
-                    controller: firstNameController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your first name',
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 250,
-                  margin: const EdgeInsets.only(
-                      top: 5.0, bottom: 20.0, left: 25, right: 25),
-                  child: TextField(
-                    textAlign: TextAlign.left,
-                    controller: lastNameController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your last name',
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    Spacer(),
-                    Container(
-                        margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                        child: RaisedButton(
-                          child: Text(
-                            'Create',
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          onPressed: () async {
-                            phoneNumber = phoneNumberController.text;
-                            String email = emailController.text;
-                            String firstName = firstNameController.text;
-                            String lastName = lastNameController.text;
-                            var result = await requestCreateNewAccount(
-                                phoneNumber, email, firstName, lastName);
-                            if (result == 0) {
-                              requestPhoneVerificationCode(phoneNumber);
-                              _navigateToVerify(context);
-                            }
-                          },
-                        )),
-                    Container(
-                        margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                        child: RaisedButton(
-                          child: Text(
-                            'Return to login',
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )),
-                    Spacer()
-                  ],
-                )
-              ])),
+    return Scaffold(
+      appBar: AppBar(title: Text('Create Account')),
+      body: Center(
+          child: ListView(children: [
+        Container(
+            margin: const EdgeInsets.only(top: 20.0, bottom: 5.0),
+            width: 350,
+            child: Text(errorMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red))),
+        Container(
+          width: 250,
+          margin: const EdgeInsets.only(
+              top: 5.0, bottom: 20.0, left: 25, right: 25),
+          child: TextField(
+            textAlign: TextAlign.left,
+            controller: phoneNumberController,
+            decoration: InputDecoration(
+              hintText: 'Enter your phone number',
+            ),
+          ),
         ),
-        onWillPop: () async => false);
+        Container(
+          width: 250,
+          margin: const EdgeInsets.only(
+              top: 5.0, bottom: 20.0, left: 25, right: 25),
+          child: TextField(
+            textAlign: TextAlign.left,
+            controller: emailController,
+            decoration: InputDecoration(
+              hintText: 'Enter your email address',
+            ),
+          ),
+        ),
+        Container(
+          width: 250,
+          margin: const EdgeInsets.only(
+              top: 5.0, bottom: 20.0, left: 25, right: 25),
+          child: TextField(
+            textAlign: TextAlign.left,
+            controller: firstNameController,
+            decoration: InputDecoration(
+              hintText: 'Enter your first name',
+            ),
+          ),
+        ),
+        Container(
+          width: 250,
+          margin: const EdgeInsets.only(
+              top: 5.0, bottom: 20.0, left: 25, right: 25),
+          child: TextField(
+            textAlign: TextAlign.left,
+            controller: lastNameController,
+            decoration: InputDecoration(
+              hintText: 'Enter your last name',
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Spacer(),
+            Container(
+                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                child: RaisedButton(
+                  child: Text(
+                    'Create',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  onPressed: () async {
+                    phoneNumber = phoneNumberController.text;
+                    String email = emailController.text;
+                    String firstName = firstNameController.text;
+                    String lastName = lastNameController.text;
+                    var result = await requestCreateNewAccount(
+                        phoneNumber, email, firstName, lastName);
+                    if (result == 0) {
+                      await requestPhoneVerificationCode(phoneNumber);
+                      _navigateToVerify(context);
+                    }
+                  },
+                )),
+            Container(
+                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                child: RaisedButton(
+                  child: Text(
+                    'Back',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )),
+            Spacer()
+          ],
+        )
+      ])),
+    );
   }
 
   @override

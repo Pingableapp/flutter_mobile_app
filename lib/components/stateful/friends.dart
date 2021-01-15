@@ -2,29 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pingable/components/stateful/addFriend.dart';
 import 'package:pingable/configuration/api.dart';
+import 'package:pingable/models/friend.dart';
+import 'package:pingable/functions/strings.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-String capitalize(String string) {
-  if (string == null) {
-    throw ArgumentError.notNull('string');
-  }
-
-  if (string.isEmpty) {
-    return string;
-  }
-
-  return string[0].toUpperCase() + string.substring(1);
-}
-
-class Friend {
-  final String firstName, lastName, phoneNumber;
-  final bool active;
-
-  Friend(this.firstName, this.lastName, this.phoneNumber, this.active);
-}
 
 class Friends extends StatefulWidget {
   final int userId;
@@ -37,13 +22,13 @@ class Friends extends StatefulWidget {
 
 class _FriendsState extends State<Friends> {
   Timer timer;
+  bool friendsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    // fetchCurrentFriends();
     timer = Timer.periodic(
-        Duration(seconds: 10), (Timer t) => fetchCurrentFriends());
+        Duration(seconds: 2), (Timer t) => fetchCurrentFriends());
   }
 
   @override
@@ -88,6 +73,10 @@ class _FriendsState extends State<Friends> {
   }
 
   void fetchCurrentFriends() async {
+    if (widget.userId == null) {
+      return;
+    }
+
     // Get list of unsorted friends
     List<Friend> unsortedFriendsList = await getFriendActivity(widget.userId);
 
@@ -111,6 +100,7 @@ class _FriendsState extends State<Friends> {
 
     setState(() {
       friendsList = sortedFriendsList;
+      friendsLoaded = true;
     });
   }
 
@@ -118,45 +108,65 @@ class _FriendsState extends State<Friends> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          margin: EdgeInsets.only(top: 5.0, left: 5.0),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              "Friends",
-              style: TextStyle(fontSize: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 5.0, left: 5.0),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Friends",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
             ),
-          ),
+            Container(
+              margin: EdgeInsets.only(top: 5.0, right: 5.0),
+              child: RaisedButton(
+                  child: Align(
+                    child: Text("Add a friend"),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AddFriend(),
+                    );
+                  }),
+            )
+          ],
         ),
         Container(
             margin: EdgeInsets.only(top: 5.0),
             height: 75.0,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: friendsList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      width: 120,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: RaisedButton(
-                        color: getPrimaryColor(friendsList[index].active),
-                        padding: EdgeInsets.all(10),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                            side: BorderSide(color: Colors.black)),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                _buildFriendPopupDialog(
-                                    context, friendsList[index]),
-                          );
-                        },
-                        child: Align(
-                            child: Text(
-                                '${friendsList[index].firstName} ${friendsList[index].lastName}')),
-                      ));
-                }))
+            child: friendsLoaded
+                ? ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: friendsList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                          width: 120,
+                          margin: EdgeInsets.symmetric(horizontal: 5.0),
+                          child: RaisedButton(
+                            color: getPrimaryColor(friendsList[index].active),
+                            padding: EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Colors.black)),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    _buildFriendPopupDialog(
+                                        context, friendsList[index]),
+                              );
+                            },
+                            child: Align(
+                                child: Text(
+                                    '${friendsList[index].firstName} ${friendsList[index].lastName}')),
+                          ));
+                    })
+                : Text("Loading friends..."))
       ],
     );
   }

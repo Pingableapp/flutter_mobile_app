@@ -15,7 +15,7 @@ Widget buildActionsPopupDialog(BuildContext context) {
             final prefs = await SharedPreferences.getInstance();
             prefs.setInt('userId', null);
             prefs.setString('authToken', null);
-            Navigator.pushNamed(context, '/login');
+            Navigator.pushNamed(context, '/accounts');
           },
           child: const Text('Logout'),
         ),

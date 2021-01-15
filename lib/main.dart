@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pingable/views/home.dart';
-import 'package:pingable/views/login.dart';
+import 'package:pingable/views/accounts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   // Widget _defaultHome = new Login();
-  String _defaultRoute = "/login";
+  String _defaultRoute = "/accounts";
 
   // Get result of the login function.
   // obtain shared preferences
@@ -26,7 +26,7 @@ void main() async {
     routes: <String, WidgetBuilder>{
       // Set routes for using the Navigator.
       '/home': (BuildContext context) => new Home(),
-      '/login': (BuildContext context) => new Login(),
+      '/accounts': (BuildContext context) => new Accounts(),
     },
   ));
 }
