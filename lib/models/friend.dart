@@ -1,6 +1,17 @@
-class Friend {
-  final String firstName, lastName, phoneNumber;
-  final bool active;
+import 'package:pingable/models/user.dart';
 
-  Friend(this.firstName, this.lastName, this.phoneNumber, this.active);
+class Friend extends User {
+  bool active;
+  int relationshipStatus;
+
+  Friend(
+    int id,
+    String firstName,
+    String lastName,
+    String phoneNumber,
+    int relationshipStatus,
+    bool active,
+  ) : super(id, firstName, lastName, phoneNumber) {
+    this.active = active;
+  }
 }

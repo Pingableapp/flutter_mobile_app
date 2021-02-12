@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pingable/shared/sharedPref.dart';
 import 'package:pingable/views/home.dart';
 import 'package:pingable/views/accounts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'models/user.dart';
 
 void main() async {
   // Widget _defaultHome = new Login();
@@ -14,8 +17,11 @@ void main() async {
   final userId = prefs.getInt('userId') ?? null;
   final authToken = prefs.getString('authToken') ?? null;
 
-  if (userId != null && authToken != null) {
-    // _defaultHome = new Home();
+
+  SharedPref sharedPref = SharedPref();
+  final user = await sharedPref.read("user");
+
+  if (userId != null && authToken != null && user != null) {
     _defaultRoute = "/home";
   }
 

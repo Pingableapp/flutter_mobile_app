@@ -108,6 +108,7 @@ class _CreateAccountState extends State<CreateAccount> {
     }
 
     // First check to see if phone number already exists
+    // TODO: Move API functionality to API library
     var getUrl = '$apiEndpoint/users?phone_number=$phoneNumber';
     http.Response resGet = await http.get(getUrl);
     var resultsGet = jsonDecode(resGet.body)["results"];

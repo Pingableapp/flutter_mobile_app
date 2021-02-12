@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
 import 'package:pingable/views/verify.dart';
-import 'package:pingable/views/createAccount.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -33,6 +32,7 @@ class _LoginState extends State<Login> {
     }
 
     // First check to see if phone number already exists
+    // TODO: Move API functionality to API library
     var getUrl = '$apiEndpoint/users?phone_number=$phoneNumber';
     http.Response resGet = await http.get(getUrl);
     var resultsGet = jsonDecode(resGet.body)["results"];

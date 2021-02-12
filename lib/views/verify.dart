@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pingable/api/users.dart';
 import 'package:pingable/configuration/api.dart';
+import 'package:pingable/models/user.dart';
+import 'package:pingable/shared/sharedPref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Verify extends StatefulWidget {
@@ -92,6 +95,31 @@ class _VerifyState extends State<Verify> {
     return authToken;
   }
 
+  void verify() async {
+    // Attempt to obtain authToken
+    String verificationCodeString = verificationCodeController.text;
+    var authToken =
+    await validateVerificationCode(verificationCodeString);
+
+    // Check for success
+    if (authToken == null) {
+      return;
+    }
+
+    // Get user data
+    User user = await getUser(userId);
+
+    // Save values to local storage
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('userId', this.userId);
+    prefs.setString('authToken', authToken);
+
+    SharedPref sharedPref = SharedPref();
+    sharedPref.save('user', user);
+
+    _navigateToHome(context, this.userId, authToken);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,24 +156,7 @@ class _VerifyState extends State<Verify> {
                 'Verify',
                 style: TextStyle(fontSize: 24),
               ),
-              onPressed: () async {
-                // Attempt to obtain authToken
-                String verificationCodeString = verificationCodeController.text;
-                var authToken =
-                    await validateVerificationCode(verificationCodeString);
-
-                // Check for success
-                if (authToken == null) {
-                  return;
-                }
-
-                // Save values to local storage
-                final prefs = await SharedPreferences.getInstance();
-                prefs.setInt('userId', this.userId);
-                prefs.setString('authToken', authToken);
-
-                _navigateToHome(context, this.userId, authToken);
-              },
+              onPressed: verify
             )),
       ])),
     );

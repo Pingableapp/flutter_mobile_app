@@ -1,14 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:pingable/components/stateful/friends.dart';
-import 'package:pingable/components/stateless/pingableCircle.dart';
-import 'package:pingable/configuration/api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/api/friends.dart';
+import 'package:pingable/api/pingableStatus.dart';
 import 'package:pingable/components/stateless/appBarActions.dart';
+import 'package:pingable/components/stateless/friends.dart';
+import 'package:pingable/components/stateless/pingableCircle.dart';
+import 'package:pingable/models/friend.dart';
+import 'package:pingable/models/status.dart';
+import 'package:pingable/models/user.dart';
+import 'package:pingable/shared/sharedPref.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home();
@@ -21,14 +24,17 @@ class _HomeState extends State<Home> {
   Timer timer;
   int userId;
   String authToken;
+  User user;
   bool currentlyPingable = false;
+  List<Friend> listOfFriends = [];
+
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     // fetchPingableStatuses();
-    timer = Timer.periodic(
-        Duration(seconds: 2), (Timer t) => fetchPingableStatuses());
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) => refresh());
   }
 
   @override
@@ -38,43 +44,26 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  Future<bool> getPingableAllStatus(int userId) async {
-    // Check to see if verification code is valid & retrieve auth token
-    var getUrl = '$apiEndpoint/users/$userId/statuses';
-    http.Response resGet = await http.get(getUrl);
+  void refresh() async {
+    await fetchPingableStatuses();
+    List<Friend> _listOfFriends = await getFriendsList(userId);
 
-    // Ensure proper status code
-    if (resGet.statusCode != 200) {
-      return false;
-    }
-
-    var statuses = jsonDecode(resGet.body)["results"];
-    for (var i = 0; i < statuses.length; i++) {
-      if (statuses[i]["type"] == "all") {
-        // status == 1 means pingable
-        return statuses[i]["status"] == 1;
-      }
-    }
-
-    return false;
-  }
-
-  Future<bool> updatePingableStatus(int statusID, int statusCode) async {
-    // Check to see if verification code is valid & retrieve auth token
-    var getUrl = '$apiEndpoint/statuses/$statusID';
-    String data = '{"status":"${statusCode.toString()}"}';
-    http.Response resPut = await http.put(getUrl, body: data);
-
-    // Ensure proper status code
-    if (resPut.statusCode != 200) {
-      return false;
-    }
-
-    return true;
+    setState(() {
+      listOfFriends = _listOfFriends;
+      isLoading = false;
+    });
   }
 
   void fetchPingableStatuses() async {
-    bool updatedCurrentlyPingable = await getPingableAllStatus(userId);
+    // 39 is coming from here
+    List<Status> statusList = await getPingableAllStatus(userId);
+
+    bool updatedCurrentlyPingable = false;
+    for (var i = 0; i < statusList.length; i++) {
+      if (statusList[i].type == "all" && statusList[i].status == 1) {
+        updatedCurrentlyPingable = true;
+      }
+    }
 
     setState(() {
       currentlyPingable = updatedCurrentlyPingable;
@@ -82,16 +71,24 @@ class _HomeState extends State<Home> {
   }
 
   void flipCurrentlyPingable() async {
-    int statusID = 2;
+    // Loop through statuses to determine current "all" statusId
+    List<Status> statuses = await getPingableAllStatus(userId);
+    int allStatusID = -1;
+    for (var i = 0; i < statuses.length; i++) {
+      if (statuses[i].type == "all") {
+        allStatusID = statuses[i].statusId;
+      }
+    }
+
     if (currentlyPingable) {
       // Set to pingable to false
-      await updatePingableStatus(statusID, 0);
+      await updatePingableStatus(allStatusID, 0);
       setState(() {
         currentlyPingable = false;
       });
     } else {
       // Set to pingable to true
-      await updatePingableStatus(statusID, 1);
+      await updatePingableStatus(allStatusID, 1);
       setState(() {
         currentlyPingable = true;
       });
@@ -102,6 +99,8 @@ class _HomeState extends State<Home> {
     final prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId') ?? null;
     authToken = prefs.getString('authToken') ?? null;
+    SharedPref sharedPref = SharedPref();
+    user = User.fromJson(await sharedPref.read("user"));
   }
 
   _HomeState() {
@@ -113,7 +112,9 @@ class _HomeState extends State<Home> {
     return new WillPopScope(
         child: Scaffold(
           appBar: AppBar(
-            title: Text('Pingable'),
+            title: isLoading
+                ? Text("Pingable")
+                : Text('Pingable - ${user.firstName} ${user.lastName}'),
             actions: <Widget>[
               Padding(
                   padding: EdgeInsets.only(right: 20.0),
@@ -121,24 +122,27 @@ class _HomeState extends State<Home> {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (BuildContext context) =>
-                            buildActionsPopupDialog(context),
+                        builder: (BuildContext context) => AppBarActions(),
                       );
                     },
                     child: Icon(Icons.more_vert),
                   )),
             ],
           ),
-          body: Column(
-            children: [
-              Friends(userId),
-              Container(
-                  margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                  child: Center(
-                      child: PingableCircle(
-                          currentlyPingable, flipCurrentlyPingable)))
-            ],
-          ),
+          body: isLoading
+              ? Text("Loading...")
+              : Column(
+                  children: [
+                    Friends(
+                      listOfFriends: listOfFriends,
+                    ),
+                    Container(
+                        margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                        child: Center(
+                            child: PingableCircle(
+                                currentlyPingable, flipCurrentlyPingable)))
+                  ],
+                ),
         ),
         onWillPop: () async => false);
   }
