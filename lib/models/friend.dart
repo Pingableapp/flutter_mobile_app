@@ -12,6 +12,7 @@ class Friend extends User {
     int relationshipStatus,
     bool active,
   ) : super(id, firstName, lastName, phoneNumber) {
+    this.relationshipStatus = relationshipStatus;
     this.active = active;
   }
 }

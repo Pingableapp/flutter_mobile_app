@@ -6,6 +6,7 @@ import 'package:pingable/components/stateless/addFriendSearch.dart';
 import 'package:pingable/models/friend.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:pingable/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddFriendDialog extends StatefulWidget {
@@ -15,8 +16,36 @@ class AddFriendDialog extends StatefulWidget {
   _AddFriendDialogState createState() => _AddFriendDialogState();
 }
 
+extension E on String {
+  String lastChars(int n) => substring(length - n);
+}
 
+List<Friend> mergeFriendLists(List<Friend> listOne, List<Friend> listTwo) {
+  // Given two lists of friends, combine them. On conflicts, use listOne's entry
+  Map listTwoNumbersMap = {};
+  for (int i = 0; i < listTwo.length; ++i) {
+    Friend listTwoFriend = listTwo[i];
+    String listTwoFriendNumber =
+        listTwoFriend.phoneNumber.replaceAll(RegExp('[^0-9]'), '').lastChars(10);
+    listTwoNumbersMap[listTwoFriendNumber] = listTwoFriend;
+  }
 
+  // If any of listOne's entries appear in the listTwo map, add the listOne
+  // entry to combinedFriends and remove the listTwo entry from the map.
+  List<Friend> combinedFriends = [];
+  for (int i = 0; i < listOne.length; ++i) {
+    Friend listOneFriend = listOne[i];
+    String listOneFriendNumber =
+    listOneFriend.phoneNumber.replaceAll(RegExp('[^0-9]'), '').lastChars(10);
+    if (listOneFriendNumber.contains(listOneFriendNumber) ) {
+        combinedFriends.add(listOneFriend);
+        listTwoNumbersMap.remove(listOneFriendNumber);
+    }
+  }
+
+  listTwoNumbersMap.forEach((key, value) => combinedFriends.add(value));
+  return combinedFriends;
+}
 
 class _AddFriendDialogState extends State<AddFriendDialog> {
   bool loadingContacts = true;
@@ -58,7 +87,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
             await ContactsService.getContacts(withThumbnails: false);
 
         // Create friend objects w/ pingable API data + phone data
-        contactList = [];
+        List<Friend> updatedContactList = [];
         List<String> phoneNumbers = [];
         for (var entry in phoneContactList) {
           int id;
@@ -67,8 +96,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
           String phoneNumber = entry.phones.toList()[0].value;
           int relationshipStatus = 0;
 
-
-          contactList.add(
+          updatedContactList.add(
             new Friend(
                 id, firstName, lastName, phoneNumber, relationshipStatus, null),
           );
@@ -78,8 +106,14 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
         // Get data about friends from Pingable API
         var prefs = await SharedPreferences.getInstance();
         int userId = prefs.getInt('userId') ?? null;
-        var result = lookupByPhoneNumbers(phoneNumbers, userId);
+        var existingContactListFriends =
+            await lookupByPhoneNumbers(phoneNumbers, userId);
+        updatedContactList =
+            mergeFriendLists(existingContactListFriends, updatedContactList);
 
+        setState(() {
+          contactList = updatedContactList;
+        });
         _loadingContacts = false;
       } else {
         // Failed to verify access to phone contacts
@@ -88,6 +122,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
     }
 
     setState(() {
+
       loadingContacts = _loadingContacts;
       currentScreen = _currentScreen;
     });

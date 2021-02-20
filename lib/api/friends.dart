@@ -95,13 +95,14 @@ Future<List<Friend>> lookupByPhoneNumbers(
 
   List<Friend> foundFriends = [];
   for (var i = 0; i < results.length; ++i) {
+    var currResult = results[i];
     foundFriends.add(
       new Friend(
-        results[i]["id"],
-        results[i]["first_name"],
-        results[i]["last_name"],
-        results[i]["phone_number"],
-        results[i]["status"],
+        currResult["id"],
+        currResult["first_name"],
+        currResult["last_name"],
+        currResult["phone_number"],
+        currResult["status"],
         null,
       ),
     );

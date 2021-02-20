@@ -21,6 +21,85 @@ class Contact extends StatelessWidget {
     this.callback,
   });
 
+  Widget selectCommunicationButton(int id, int relationshipStatus) {
+    if (id == null) {
+      return RaisedButton(
+        color: Colors.blue,
+        onPressed: () => callback(id, firstName, lastName, phoneNumber),
+        child: Text(
+          "Invite to Pingable",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+          ),
+        ),
+      );
+    }
+
+    switch (relationshipStatus) {
+      case 0:
+        return RaisedButton(
+          color: Colors.blue,
+          onPressed: null,
+          child: Text(
+            "Request sent",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+      case 1:
+        return RaisedButton(
+          color: Colors.blue,
+          onPressed: null,
+          child: Text(
+            "Already added",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+      case 2:
+        return RaisedButton(
+          color: Colors.blue,
+          onPressed: null,
+          child: Text(
+            "Cannot add",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+      case 3:
+        return RaisedButton(
+          color: Colors.blue,
+          onPressed: null,
+          child: Text(
+            "Cannot add",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+      default:
+        return RaisedButton(
+          color: Colors.blue,
+          onPressed: () => callback(id, firstName, lastName, phoneNumber),
+          child: Text(
+            "Send friend request",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,14 +119,7 @@ class Contact extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("$phoneNumber"),
-              RaisedButton(
-                color: Colors.blue,
-                onPressed: () => callback(id, firstName, lastName, phoneNumber),
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-              ),
+               selectCommunicationButton(id, relationshipStatus),
             ],
           )
         ],

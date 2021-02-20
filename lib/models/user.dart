@@ -1,3 +1,5 @@
+
+
 class User {
   final int id;
   final String firstName, lastName, phoneNumber;
@@ -16,4 +18,5 @@ class User {
     'lastName': lastName,
     'phoneNumber': phoneNumber,
   };
+
 }
