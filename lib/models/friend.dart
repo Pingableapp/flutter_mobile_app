@@ -16,3 +16,13 @@ class Friend extends User {
     this.active = active;
   }
 }
+
+List<Friend> filterAcceptedFriends(List<Friend> unfilteredFriends) {
+  List<Friend> filteredFriends = [];
+  for (int i = 0; i < unfilteredFriends.length; ++i ){
+    if (unfilteredFriends[i].relationshipStatus == 1) {
+      filteredFriends.add(unfilteredFriends[i]);
+    }
+  }
+  return filteredFriends;
+}

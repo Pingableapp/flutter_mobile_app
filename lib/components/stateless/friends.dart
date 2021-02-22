@@ -33,7 +33,7 @@ class Friends extends StatelessWidget {
         Container(
             margin: EdgeInsets.only(top: 5.0),
             height: 75.0,
-            child: FriendsList(listOfFriends: listOfFriends))
+            child: FriendsList(listOfFriends: filterAcceptedFriends(listOfFriends)))
       ],
     );
   }
