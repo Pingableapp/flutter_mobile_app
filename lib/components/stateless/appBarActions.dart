@@ -6,7 +6,7 @@ class AppBarActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new AlertDialog(
-      title: Text('Logged in as'),
+      title: Text('Actions'),
       content: new Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

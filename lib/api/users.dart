@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
 import 'package:pingable/functions/strings.dart';
-import 'package:pingable/models/friend.dart';
 import 'package:pingable/models/user.dart';
 
 Future<User> getUser(int userId) async {

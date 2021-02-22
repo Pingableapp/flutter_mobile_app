@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pingable/shared/sharedPref.dart';
-import 'package:pingable/views/home.dart';
 import 'package:pingable/views/accounts.dart';
+import 'package:pingable/views/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'models/user.dart';
 
 void main() async {
   // Widget _defaultHome = new Login();

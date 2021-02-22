@@ -1,8 +1,6 @@
-
-
 class User {
-  final int id;
-  final String firstName, lastName, phoneNumber;
+  int id;
+  String firstName, lastName, phoneNumber;
 
   User(this.id, this.firstName, this.lastName, this.phoneNumber);
 
@@ -13,10 +11,27 @@ class User {
         phoneNumber = json['phoneNumber'];
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'firstName': firstName,
-    'lastName': lastName,
-    'phoneNumber': phoneNumber,
-  };
+        'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'phoneNumber': phoneNumber,
+      };
 
+  static int compareNames(User userOne, User userTwo) {
+    var comparisonResult = userOne.firstName
+        .toLowerCase()
+        .compareTo(userTwo.firstName.toLowerCase());
+    if (comparisonResult != 0) {
+      return comparisonResult;
+    }
+    // Surnames are the same, so sub-sort by given name.
+    return userOne.lastName
+        .toLowerCase()
+        .compareTo(userTwo.lastName.toLowerCase());
+  }
+
+  static List<User> sortUserListFirstLast(List<User> userList) {
+    userList.sort(User.compareNames);
+    return userList;
+  }
 }

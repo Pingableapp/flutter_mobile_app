@@ -6,6 +6,32 @@ import 'package:pingable/configuration/api.dart';
 import 'package:pingable/functions/strings.dart';
 import 'package:pingable/models/friend.dart';
 
+Future sendInviteToPingable(
+    int sendingUserId, String receivingPhoneNumber) async {
+  var postUrl = '$apiEndpoint/one_offs/invite_to_pingable';
+
+  String data =
+      '{'
+      '"sending_user_id":"$sendingUserId",'
+      '"receiving_phone_number": "$receivingPhoneNumber"'
+      '}';
+  http.Response resPost = await http.post(postUrl, body: data);
+  var results = jsonDecode(resPost.body);
+}
+
+Future sendFriendRequest(
+    int sendingUserId, int receivingUserId) async {
+  var postUrl = '$apiEndpoint/users/$sendingUserId/relationships/friend_requests';
+
+  String data =
+      '{'
+      '"sending_user_id":"$sendingUserId",'
+      '"receiving_user_id": "$receivingUserId"'
+      '}';
+  http.Response resPost = await http.post(postUrl, body: data);
+  var results = jsonDecode(resPost.body);
+}
+
 Future<List<Friend>> getFriendActivity(int userId) async {
   // Check to see if verification code is valid & retrieve auth token
   var getUrl = '$apiEndpoint/users/$userId/relationships';
@@ -67,7 +93,6 @@ Future<List<Friend>> searchForFriends(String firstName, String lastName) async {
 
   var getUrl = '$apiEndpoint/users?first_name=${firstName.toLowerCase()}';
   http.Response resGet = await http.get(getUrl);
-  var results = jsonDecode(resGet.body)["results"];
 
   List<Friend> unsortedFriendsList = [];
   var friends = jsonDecode(resGet.body)["results"];
