@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 
 class PingableCircle extends StatelessWidget {
   final bool active;
@@ -42,9 +42,11 @@ class PingableCircle extends StatelessWidget {
             color: getPrimaryColor(active),
             padding: EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-                side: BorderSide(color: Colors.black)),
-            onPressed: onPressed,
+                borderRadius: BorderRadius.circular(18.0), side: BorderSide(color: Colors.black)),
+            onPressed: () {
+              clickTrackingUseCase.recordClickTrackingEvent("update_pingable_status", "click", "active: $active");
+              onPressed();
+            },
             child: Align(
               child: Text(getButtonText(active)),
             )));

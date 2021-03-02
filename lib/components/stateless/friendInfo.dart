@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pingable/models/friend.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 import 'package:url_launcher/url_launcher.dart';
 
 class FriendInfo extends StatelessWidget {
@@ -38,7 +39,10 @@ class FriendInfo extends StatelessWidget {
           Text("Phone number: ${friend.phoneNumber}"),
           RaisedButton(
             onPressed: friend.active
-                ? () => _makePhoneCall('tel://${friend.phoneNumber}')
+                ? () {
+                    clickTrackingUseCase.recordClickTrackingEvent("call_friend", "click", "");
+                    _makePhoneCall('tel://${friend.phoneNumber}');
+                  }
                 : null,
             child: const Text('Make phone call'),
           ),

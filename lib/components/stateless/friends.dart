@@ -7,8 +7,9 @@ import 'package:pingable/models/friend.dart';
 
 class Friends extends StatelessWidget {
   final List<Friend> listOfFriends;
+  final int friendRequests;
 
-  Friends({this.listOfFriends});
+  Friends({this.listOfFriends, this.friendRequests});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class Friends extends StatelessWidget {
                 ),
               ),
             ),
-            AddFriendButton()
+            AddFriendButton(friendRequests: friendRequests)
           ],
         ),
         Container(

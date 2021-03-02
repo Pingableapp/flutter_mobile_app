@@ -5,13 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
 import 'package:pingable/functions/strings.dart';
 import 'package:pingable/models/friend.dart';
+import 'package:pingable/models/friendRequest.dart';
 
-Future sendInviteToPingable(
-    int sendingUserId, String receivingPhoneNumber) async {
+Future sendInviteToPingable(int sendingUserId, String receivingPhoneNumber) async {
   var postUrl = '$apiEndpoint/one_offs/invite_to_pingable';
 
-  String data =
-      '{'
+  String data = '{'
       '"sending_user_id":"$sendingUserId",'
       '"receiving_phone_number": "$receivingPhoneNumber"'
       '}';
@@ -19,17 +18,41 @@ Future sendInviteToPingable(
   var results = jsonDecode(resPost.body);
 }
 
-Future sendFriendRequest(
-    int sendingUserId, int receivingUserId) async {
-  var postUrl = '$apiEndpoint/users/$sendingUserId/relationships/friend_requests';
+Future sendFriendRequest(int sendingUserId, int receivingUserId) async {
+  var postUrl = '$apiEndpoint/users/$sendingUserId/friend_requests';
 
-  String data =
-      '{'
+  String data = '{'
       '"sending_user_id":"$sendingUserId",'
       '"receiving_user_id": "$receivingUserId"'
       '}';
   http.Response resPost = await http.post(postUrl, body: data);
   var results = jsonDecode(resPost.body);
+}
+
+Future<List<FriendRequest>> getFriendRequests(int userId) async {
+  // Check to see if verification code is valid & retrieve auth token
+  var getUrl = '$apiEndpoint/users/$userId/friend_requests';
+  http.Response resGet = await http.get(getUrl);
+
+  // Ensure proper status code
+  if (resGet.statusCode != 200) {
+    return [];
+  }
+
+  List<FriendRequest> unsortedFriendRequests = [];
+  var friends = jsonDecode(resGet.body)["results"];
+  for (var i = 0; i < friends.length; i++) {
+    int sendingUserId = friends[i]["sending_user_id"];
+    String sendingFirstName = friends[i]["sending_first_name"];
+    String sendingLastName = friends[i]["sending_last_name"];
+    String receivingPhoneNumber = friends[i]["receiving_phone_number"];
+    String expirationTimestamp = friends[i]["expiration_timestamp"];
+
+    unsortedFriendRequests.add(
+        new FriendRequest(sendingUserId, sendingFirstName, sendingLastName, receivingPhoneNumber, expirationTimestamp));
+  }
+
+  return unsortedFriendRequests;
 }
 
 Future<List<Friend>> getFriendActivity(int userId) async {
@@ -52,8 +75,7 @@ Future<List<Friend>> getFriendActivity(int userId) async {
     bool active = friends[i]["availability_status"] == 1;
     int id = friends[i]["id"];
 
-    unsortedFriendsList.add(new Friend(
-        id, firstName, lastName, phoneNumber, relationshipStatus, active));
+    unsortedFriendsList.add(new Friend(id, firstName, lastName, phoneNumber, relationshipStatus, active));
   }
 
   return unsortedFriendsList;
@@ -103,14 +125,12 @@ Future<List<Friend>> searchForFriends(String firstName, String lastName) async {
     int relationshipStatus = friends[i]["relationship_status"];
     bool active = friends[i]["availability_status"] == 1;
     int id = friends[i]["id"];
-    unsortedFriendsList.add(new Friend(
-        id, firstName, lastName, phoneNumber, relationshipStatus, active));
+    unsortedFriendsList.add(new Friend(id, firstName, lastName, phoneNumber, relationshipStatus, active));
   }
   return unsortedFriendsList;
 }
 
-Future<List<Friend>> lookupByPhoneNumbers(
-    List<String> phoneNumbers, int userId) async {
+Future<List<Friend>> lookupByPhoneNumbers(List<String> phoneNumbers, int userId) async {
   var postUrl = '$apiEndpoint/one_offs/users_by_phone_number_list';
 
   String data = '{"user_id":"$userId",'

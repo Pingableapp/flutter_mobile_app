@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
-import 'package:pingable/functions/strings.dart';
 import 'package:pingable/models/user.dart';
 
 Future<User> getUser(int userId) async {
@@ -17,11 +16,10 @@ Future<User> getUser(int userId) async {
   }
 
   var user = jsonDecode(resGet.body)["results"];
-  String firstName = capitalize(user["first_name"]);
-  String lastName = capitalize(user["last_name"]);
+  String firstName = user["first_name"];
+  String lastName = user["last_name"];
   String phoneNumber = user["phone_number"];
   int id = user["id"];
 
   return new User(id, firstName, lastName, phoneNumber);
 }
-

@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:pingable/api/appVersion.dart' as appVersionAPI;
 import 'package:pingable/shared/sharedPref.dart';
+import 'package:pingable/use_cases/users.dart' as usersUseCase;
 import 'package:pingable/views/accounts.dart';
 import 'package:pingable/views/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/views/update.dart';
 
-void main() async {
-  // Widget _defaultHome = new Login();
+Future<String> defaultRoute() async {
+  double currentVersion = 0.1;
+  double minimumVersion = await appVersionAPI.getAppVersion();
+  if (currentVersion < minimumVersion) {
+    return "/update";
+  }
+
   String _defaultRoute = "/accounts";
 
-  // Get result of the login function.
-  // obtain shared preferences
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getInt('userId') ?? null;
-  final authToken = prefs.getString('authToken') ?? null;
-
+  int userId = await usersUseCase.getLoggedInUserId();
+  String authToken = await usersUseCase.getAuthToken();
 
   SharedPref sharedPref = SharedPref();
   final user = await sharedPref.read("user");
@@ -23,14 +26,19 @@ void main() async {
     _defaultRoute = "/home";
   }
 
-  runApp(MaterialApp(
-    title: 'Flutter',
-    // home: _defaultHome,
-    initialRoute: _defaultRoute,
-    routes: <String, WidgetBuilder>{
-      // Set routes for using the Navigator.
-      '/home': (BuildContext context) => new Home(),
-      '/accounts': (BuildContext context) => new Accounts(),
-    },
-  ));
+  return _defaultRoute;
+}
+
+void main() async {
+  runApp(
+    MaterialApp(
+      title: 'Flutter',
+      initialRoute: await defaultRoute(),
+      routes: <String, WidgetBuilder>{
+        '/update': (BuildContext context) => new Update(),
+        '/home': (BuildContext context) => new Home(),
+        '/accounts': (BuildContext context) => new Accounts(),
+      },
+    ),
+  );
 }

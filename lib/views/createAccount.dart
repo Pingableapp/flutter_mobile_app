@@ -4,7 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 import 'package:pingable/views/verify.dart';
+
+
 
 class CreateAccount extends StatefulWidget {
   @override
@@ -209,6 +212,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     style: TextStyle(fontSize: 24),
                   ),
                   onPressed: () async {
+                    clickTrackingUseCase.recordClickTrackingEvent("create_account_submit", "click", "");
                     phoneNumber = phoneNumberController.text;
                     String email = emailController.text;
                     String firstName = firstNameController.text;
@@ -229,6 +233,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     style: TextStyle(fontSize: 24),
                   ),
                   onPressed: () {
+                    clickTrackingUseCase.recordClickTrackingEvent("create_account_back", "click", "");
                     Navigator.pop(context);
                   },
                 )),

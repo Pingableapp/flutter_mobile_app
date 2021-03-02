@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
+import 'package:pingable/use_cases/users.dart' as usersUseCase;
+
 
 class AppBarActions extends StatelessWidget {
   @override
@@ -13,9 +15,9 @@ class AppBarActions extends StatelessWidget {
         children: <Widget>[
           RaisedButton(
             onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
-              prefs.setInt('userId', null);
-              prefs.setString('authToken', null);
+              clickTrackingUseCase.recordClickTrackingEvent("logout", "click", "");
+              usersUseCase.resetLoggedInUserID();
+              usersUseCase.resetAuthToken();
               Navigator.pushNamed(context, '/accounts');
             },
             child: const Text('Logout'),
@@ -25,6 +27,7 @@ class AppBarActions extends StatelessWidget {
       actions: <Widget>[
         new FlatButton(
           onPressed: () {
+            clickTrackingUseCase.recordClickTrackingEvent("close_app_bar", "click", "");
             Navigator.of(context).pop();
           },
           textColor: Theme.of(context).primaryColor,

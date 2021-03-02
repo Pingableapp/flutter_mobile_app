@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 import 'package:pingable/views/verify.dart';
+
 
 class Login extends StatefulWidget {
   @override
@@ -95,6 +97,7 @@ class _LoginState extends State<Login> {
                     style: TextStyle(fontSize: 24),
                   ),
                   onPressed: () async {
+                    clickTrackingUseCase.recordClickTrackingEvent("login_submit", "click", "");
                     phoneNumber = phoneNumberController.text;
                     var result =
                         await requestPhoneVerificationCode(phoneNumber);
@@ -111,6 +114,7 @@ class _LoginState extends State<Login> {
                     style: TextStyle(fontSize: 24),
                   ),
                   onPressed: () {
+                    clickTrackingUseCase.recordClickTrackingEvent("login_back", "click", "");
                     Navigator.pop(context);
                   },
                 )),

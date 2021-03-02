@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pingable/components/stateless/friendInfo.dart';
 import 'package:pingable/models/friend.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
+
 
 class FriendsList extends StatelessWidget {
   final List<Friend> listOfFriends;
@@ -33,6 +35,7 @@ class FriendsList extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18.0),
                     side: BorderSide(color: Colors.black)),
                 onPressed: () {
+                  clickTrackingUseCase.recordClickTrackingEvent("show_friend", "click", "");
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>

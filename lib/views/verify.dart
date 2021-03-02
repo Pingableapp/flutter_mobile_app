@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pingable/api/users.dart';
+import 'package:pingable/api/users.dart' as usersAPI;
 import 'package:pingable/configuration/api.dart';
 import 'package:pingable/models/user.dart';
 import 'package:pingable/shared/sharedPref.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
+import 'package:pingable/use_cases/users.dart' as usersUseCase;
 
 class Verify extends StatefulWidget {
   final String phoneNumber;
@@ -32,8 +33,7 @@ class _VerifyState extends State<Verify> {
 
   Future<String> getAuthToken(int userId, String verificationCode) async {
     // Check to see if verification code is valid & retrieve auth token
-    var getUrl =
-        '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
+    var getUrl = '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code
@@ -96,10 +96,11 @@ class _VerifyState extends State<Verify> {
   }
 
   void verify() async {
+    clickTrackingUseCase.recordClickTrackingEvent("verify", "click", "");
+
     // Attempt to obtain authToken
     String verificationCodeString = verificationCodeController.text;
-    var authToken =
-    await validateVerificationCode(verificationCodeString);
+    var authToken = await validateVerificationCode(verificationCodeString);
 
     // Check for success
     if (authToken == null) {
@@ -107,12 +108,11 @@ class _VerifyState extends State<Verify> {
     }
 
     // Get user data
-    User user = await getUser(userId);
+    User user = await usersAPI.getUser(userId);
 
     // Save values to local storage
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('userId', this.userId);
-    prefs.setString('authToken', authToken);
+    usersUseCase.setAuthToken(authToken);
+    usersUseCase.setUserId(userId);
 
     SharedPref sharedPref = SharedPref();
     sharedPref.save('user', user);
@@ -135,9 +135,7 @@ class _VerifyState extends State<Verify> {
         Container(
             width: 350,
             margin: const EdgeInsets.only(top: 15.0, bottom: 0),
-            child: Text(errorMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red))),
+            child: Text(errorMessage, textAlign: TextAlign.center, style: TextStyle(color: Colors.red))),
         Container(
           width: 250,
           margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
@@ -152,12 +150,11 @@ class _VerifyState extends State<Verify> {
         Container(
             margin: const EdgeInsets.only(left: 5.0, right: 5.0),
             child: RaisedButton(
-              child: Text(
-                'Verify',
-                style: TextStyle(fontSize: 24),
-              ),
-              onPressed: verify
-            )),
+                child: Text(
+                  'Verify',
+                  style: TextStyle(fontSize: 24),
+                ),
+                onPressed: verify)),
       ])),
     );
   }

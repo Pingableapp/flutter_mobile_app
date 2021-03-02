@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pingable/api/friends.dart';
-import 'package:pingable/api/pingableStatus.dart';
+import 'package:pingable/api/friends.dart' as friendsAPI;
+import 'package:pingable/api/pingableStatus.dart' as pingableStatusAPI;
 import 'package:pingable/components/stateless/appBarActions.dart';
 import 'package:pingable/components/stateless/friends.dart';
 import 'package:pingable/components/stateless/pingableCircle.dart';
@@ -11,7 +11,9 @@ import 'package:pingable/models/friend.dart';
 import 'package:pingable/models/status.dart';
 import 'package:pingable/models/user.dart';
 import 'package:pingable/shared/sharedPref.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/use_cases/friendRequests.dart' as friendRequestsUseCase;
+import 'package:pingable/use_cases/screenSize.dart' as screenSizeUseCase;
+import 'package:pingable/use_cases/users.dart' as usersUseCase;
 
 class Home extends StatefulWidget {
   const Home();
@@ -27,14 +29,18 @@ class _HomeState extends State<Home> {
   User user;
   bool currentlyPingable = false;
   List<Friend> listOfFriends = [];
+  int friendRequests;
 
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // fetchPingableStatuses();
-    timer = Timer.periodic(Duration(seconds: 2), (Timer t) => refresh());
+    timer = Timer.periodic(Duration(seconds: 3), (Timer t) => refresh());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      screenSizeUseCase.setScreenWidth(MediaQuery.of(context).size.width.toInt());
+      screenSizeUseCase.setScreenHeight(MediaQuery.of(context).size.height.toInt());
+    });
   }
 
   @override
@@ -46,17 +52,19 @@ class _HomeState extends State<Home> {
 
   void refresh() async {
     await fetchPingableStatuses();
-    List<Friend> _listOfFriends = await getFriendsList(userId);
+    List<Friend> _listOfFriends = await friendsAPI.getFriendsList(userId);
+    int updatedFriendRequests = await friendRequestsUseCase.getFriendRequestsCount();
 
     setState(() {
       listOfFriends = _listOfFriends;
       isLoading = false;
+      friendRequests = updatedFriendRequests;
     });
   }
 
   void fetchPingableStatuses() async {
     // 39 is coming from here
-    List<Status> statusList = await getPingableAllStatus(userId);
+    List<Status> statusList = await pingableStatusAPI.getPingableAllStatus(userId);
 
     bool updatedCurrentlyPingable = false;
     for (var i = 0; i < statusList.length; i++) {
@@ -72,7 +80,7 @@ class _HomeState extends State<Home> {
 
   void flipCurrentlyPingable() async {
     // Loop through statuses to determine current "all" statusId
-    List<Status> statuses = await getPingableAllStatus(userId);
+    List<Status> statuses = await pingableStatusAPI.getPingableAllStatus(userId);
     int allStatusID = -1;
     for (var i = 0; i < statuses.length; i++) {
       if (statuses[i].type == "all") {
@@ -82,13 +90,13 @@ class _HomeState extends State<Home> {
 
     if (currentlyPingable) {
       // Set to pingable to false
-      await updatePingableStatus(allStatusID, 0);
+      await pingableStatusAPI.updatePingableStatus(allStatusID, 0);
       setState(() {
         currentlyPingable = false;
       });
     } else {
       // Set to pingable to true
-      await updatePingableStatus(allStatusID, 1);
+      await pingableStatusAPI.updatePingableStatus(allStatusID, 1);
       setState(() {
         currentlyPingable = true;
       });
@@ -96,11 +104,11 @@ class _HomeState extends State<Home> {
   }
 
   void loadInitialValues() async {
-    final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getInt('userId') ?? null;
-    authToken = prefs.getString('authToken') ?? null;
+    userId = await usersUseCase.getLoggedInUserId();
+    authToken = await usersUseCase.getAuthToken();
     SharedPref sharedPref = SharedPref();
     user = User.fromJson(await sharedPref.read("user"));
+    friendRequests = await friendRequestsUseCase.getFriendRequestsCount();
   }
 
   _HomeState() {
@@ -112,9 +120,7 @@ class _HomeState extends State<Home> {
     return new WillPopScope(
         child: Scaffold(
           appBar: AppBar(
-            title: isLoading
-                ? Text("Pingable")
-                : Text('Pingable - ${user.firstName} ${user.lastName}'),
+            title: isLoading ? Text("Pingable") : Text('Pingable - ${user.firstName} ${user.lastName}'),
             actions: <Widget>[
               Padding(
                   padding: EdgeInsets.only(right: 20.0),
@@ -135,12 +141,11 @@ class _HomeState extends State<Home> {
                   children: [
                     Friends(
                       listOfFriends: listOfFriends,
+                      friendRequests: friendRequests,
                     ),
                     Container(
                         margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                        child: Center(
-                            child: PingableCircle(
-                                currentlyPingable, flipCurrentlyPingable)))
+                        child: Center(child: PingableCircle(currentlyPingable, flipCurrentlyPingable)))
                   ],
                 ),
         ),

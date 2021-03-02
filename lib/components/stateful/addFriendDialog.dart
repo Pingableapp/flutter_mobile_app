@@ -1,13 +1,20 @@
+import 'dart:async';
+
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pingable/api/friends.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:pingable/api/friendRequests.dart' as friendRequestsAPI;
+import 'package:pingable/api/friends.dart' as friends;
 import 'package:pingable/components/stateless/addFriendFromContacts.dart';
 import 'package:pingable/components/stateless/addFriendSearch.dart';
+import 'package:pingable/components/stateless/friendRequestList.dart';
 import 'package:pingable/models/friend.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:contacts_service/contacts_service.dart';
+import 'package:pingable/models/friendRequest.dart';
 import 'package:pingable/models/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
+import 'package:pingable/use_cases/friendRequests.dart' as friendRequestsUseCase;
+import 'package:pingable/use_cases/users.dart' as usersUseCase;
 
 class AddFriendDialog extends StatefulWidget {
   AddFriendDialog();
@@ -25,9 +32,7 @@ List<Friend> mergeFriendLists(List<Friend> listOne, List<Friend> listTwo) {
   Map listTwoNumbersMap = {};
   for (int i = 0; i < listTwo.length; ++i) {
     Friend listTwoFriend = listTwo[i];
-    String listTwoFriendNumber = listTwoFriend.phoneNumber
-        .replaceAll(RegExp('[^0-9]'), '')
-        .lastChars(10);
+    String listTwoFriendNumber = listTwoFriend.phoneNumber.replaceAll(RegExp('[^0-9]'), '').lastChars(10);
     listTwoNumbersMap[listTwoFriendNumber] = listTwoFriend;
   }
 
@@ -36,9 +41,7 @@ List<Friend> mergeFriendLists(List<Friend> listOne, List<Friend> listTwo) {
   List<Friend> combinedFriends = [];
   for (int i = 0; i < listOne.length; ++i) {
     Friend listOneFriend = listOne[i];
-    String listOneFriendNumber = listOneFriend.phoneNumber
-        .replaceAll(RegExp('[^0-9]'), '')
-        .lastChars(10);
+    String listOneFriendNumber = listOneFriend.phoneNumber.replaceAll(RegExp('[^0-9]'), '').lastChars(10);
     if (listOneFriendNumber.contains(listOneFriendNumber)) {
       combinedFriends.add(listOneFriend);
       listTwoNumbersMap.remove(listOneFriendNumber);
@@ -50,30 +53,46 @@ List<Friend> mergeFriendLists(List<Friend> listOne, List<Friend> listTwo) {
 }
 
 class _AddFriendDialogState extends State<AddFriendDialog> {
+  Timer timer;
+
   bool loadingContacts = true;
   bool displayResults = false;
+  bool loadingFriendRequests = true;
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
+  int numFriendRequests;
 
-  String currentScreen;
+  String currentScreen = "friendRequests";
 
   List<Friend> contactList;
+  List<FriendRequest> friendRequestList;
 
-  // List<Friend> friendsFound;
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 3), (Timer t) => refresh());
+  }
 
-  // searchForFriendsAndUpdate(String firstName, String lastName) async {
-  //   List<Friend> _friendsFound;
-  //   _friendsFound = await searchForFriendsAndUpdate(firstName, lastName);
-  //
-  //   setState(() {
-  //     friendsFound = _friendsFound;
-  //     displayResults = true;
-  //   });
-  // }
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    timer.cancel();
+    super.dispose();
+  }
+
+  void refresh() async {
+    List<FriendRequest> friendRequests =
+        FriendRequest.sortListFirstLast(await friendRequestsUseCase.getFriendRequests());
+    setState(() {
+      numFriendRequests = friendRequests.length;
+      loadingFriendRequests = false;
+      friendRequestList = friendRequests;
+    });
+  }
 
   Future displayScreen(String screen) async {
     String _currentScreen = screen;
-    bool _loadingContacts = true;
+    int userId = await usersUseCase.getLoggedInUserId();
 
     if (screen == "contacts") {
       // Ensure we have proper access to contacts
@@ -86,8 +105,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
       // If we have access, fetch contacts list and retrieve
       // matching data form pingable API
       if (await Permission.contacts.isGranted) {
-        Iterable<Contact> phoneContactList =
-        await ContactsService.getContacts(withThumbnails: false);
+        Iterable<Contact> phoneContactList = await ContactsService.getContacts(withThumbnails: false);
 
         // Create friend objects w/ pingable API data + phone data
         List<Friend> updatedContactList = [];
@@ -100,39 +118,64 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
           int relationshipStatus = 0;
 
           updatedContactList.add(
-            new Friend(
-                id, firstName, lastName, phoneNumber, relationshipStatus, null),
+            new Friend(id, firstName, lastName, phoneNumber, relationshipStatus, null),
           );
           phoneNumbers.add(phoneNumber);
         }
 
         // Get data about friends from Pingable API
-        var prefs = await SharedPreferences.getInstance();
-        int userId = prefs.getInt('userId') ?? null;
-        var existingContactListFriends =
-        await lookupByPhoneNumbers(phoneNumbers, userId);
-        updatedContactList =
-            mergeFriendLists(existingContactListFriends, updatedContactList);
+        var existingContactListFriends = await friends.lookupByPhoneNumbers(phoneNumbers, userId);
+        updatedContactList = mergeFriendLists(existingContactListFriends, updatedContactList);
         updatedContactList = User.sortUserListFirstLast(updatedContactList);
 
         setState(() {
+          loadingContacts = false;
           contactList = updatedContactList;
         });
-        _loadingContacts = false;
       } else {
         // Failed to verify access to phone contacts
         _currentScreen = "needContactAccess";
       }
+    } else if (currentScreen == "friendRequests") {
+      List<FriendRequest> friendRequests =
+          FriendRequest.sortListFirstLast(await friendRequestsUseCase.getFriendRequests());
+      setState(() {
+        numFriendRequests = friendRequests.length;
+        loadingFriendRequests = false;
+        friendRequestList = friendRequests;
+      });
+    } else if (currentScreen == "database") {
+      // Do nothing for now
     }
 
     setState(() {
-      loadingContacts = _loadingContacts;
       currentScreen = _currentScreen;
     });
   }
 
-  addFriend(int id, String firstName, String lastName,
-      String phoneNumber) async {
+  acceptFriendRequest(int sendingUserId, String receivingPhoneNumber) async {
+    // Find the user we are looking for
+    List<FriendRequest> updatedFriendRequests = friendRequestList;
+    int friendRequestIndex;
+
+    for (int i = 0; i < updatedFriendRequests.length; ++i) {
+      FriendRequest currFriendRequest = updatedFriendRequests[i];
+      if (currFriendRequest.sendingUserId == sendingUserId &&
+          currFriendRequest.receivingPhoneNumber == receivingPhoneNumber) {
+        friendRequestIndex = i;
+        break;
+      }
+    }
+    int userId = await usersUseCase.getLoggedInUserId();
+    await friendRequestsAPI.acceptFriendRequest(sendingUserId, userId);
+    updatedFriendRequests.removeAt(friendRequestIndex);
+    setState(() {
+      friendRequestList = updatedFriendRequests;
+      numFriendRequests = updatedFriendRequests.length;
+    });
+  }
+
+  addFriend(int id, String firstName, String lastName, String phoneNumber) async {
     // Find the user we are looking for
     int contactIndex;
     for (int i = 0; i < contactList.length; ++i) {
@@ -146,12 +189,11 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
       }
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId') ?? null;
+    int userId = await usersUseCase.getLoggedInUserId();
 
     if (id == null) {
       // User doesn't exist yet - send invite
-      await sendInviteToPingable(userId, contactList[contactIndex].phoneNumber);
+      await friends.sendInviteToPingable(userId, contactList[contactIndex].phoneNumber);
       setState(() {
         contactList[contactIndex].relationshipStatus = 0;
         contactList[contactIndex].id = -1;
@@ -159,7 +201,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
       print("$firstName $lastName $phoneNumber -> Sending pingable invite");
     } else {
       // User already registered w/ pingable
-      await sendFriendRequest(userId, contactList[contactIndex].id);
+      await friends.sendFriendRequest(userId, contactList[contactIndex].id);
       setState(() {
         contactList[contactIndex].relationshipStatus = 0;
       });
@@ -174,42 +216,31 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: [
+            numFriendRequests != null && numFriendRequests > 0
+                ? Container(
+                    margin: EdgeInsets.only(right: 5.0, left: 5.0),
+                    child: RaisedButton(
+                        child: Text("Friend Requests ($numFriendRequests)"),
+                        onPressed: () async {
+                          clickTrackingUseCase.recordClickTrackingEvent("friend_requests", "click", "");
+                          await displayScreen("friendRequests");
+                        }),
+                  )
+                : SizedBox.shrink(), // SizedBox.shrink() is equivalent to null
             Row(
               children: [
                 Container(
                   margin: EdgeInsets.only(right: 5.0, left: 5.0),
                   child: RaisedButton(
-                      child: Text("From Pingable"),
-                      onPressed: () async {
-                        await displayScreen("database");
-                      }),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: 5.0, left: 5.0),
-                  child: RaisedButton(
                       child: Text("From Contacts"),
                       onPressed: () async {
+                        clickTrackingUseCase.recordClickTrackingEvent("from_contacts", "click", "");
                         await displayScreen("contacts");
                       }),
                 ),
               ],
             ),
-            // This is aids but works -> Two ternary expressions
-            // Switch on 'currentScreen'
-            //    if "contacts" switch on 'loadingContacts'
-            //        if 'loadingContacts' is true
-            //            display AddFriendFromContacts
-            //        else
-            //            display Text("Loading contacts
-            //    else display AddFriendSearchDatabase
-            currentScreen == "contacts"
-                ? (loadingContacts
-                ? Text("Loading contacts...")
-                : AddFriendFromContacts(
-                callback: addFriend, contactList: contactList))
-                : displayResults // TODO: Extract this logic and the variables above to another class
-                ? Text("Results")
-                : AddFriendSearchDatabase(callback: searchForFriends)
+            getCurrentScreen()
           ],
         ),
       ),
@@ -218,12 +249,30 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          textColor: Theme
-              .of(context)
-              .primaryColor,
+          textColor: Theme.of(context).primaryColor,
           child: const Text('Close'),
         ),
       ],
     );
+  }
+
+  Widget getCurrentScreen() {
+    switch (currentScreen) {
+      case "contacts":
+        return loadingContacts
+            ? Text("Loading contacts...")
+            : AddFriendFromContacts(callback: addFriend, contactList: contactList);
+      case "database":
+        return displayResults ? Text("Results") : AddFriendSearchDatabase(callback: friends.searchForFriends);
+      case "friendRequests":
+        return loadingFriendRequests
+            ? Text("Loading friend requests...")
+            : FriendRequestList(
+                friendRequestList: friendRequestList,
+                callback: acceptFriendRequest,
+              );
+      default:
+        return Text("Error.");
+    }
   }
 }
