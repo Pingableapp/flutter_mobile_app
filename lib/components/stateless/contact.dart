@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-typedef void StringCallback(
-    int id, String firstName, String lastName, String phoneNumber);
+typedef void StringCallback(int id, String firstName, String lastName, String phoneNumber);
 
 class Contact extends StatelessWidget {
   final int id;
@@ -30,7 +29,7 @@ class Contact extends StatelessWidget {
           "Invite to Pingable",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 10,
           ),
         ),
       );
@@ -45,7 +44,7 @@ class Contact extends StatelessWidget {
             "Request sent",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         );
@@ -57,7 +56,7 @@ class Contact extends StatelessWidget {
             "Already added",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         );
@@ -69,7 +68,7 @@ class Contact extends StatelessWidget {
             "Cannot add",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         );
@@ -81,7 +80,7 @@ class Contact extends StatelessWidget {
             "Cannot add",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         );
@@ -93,7 +92,7 @@ class Contact extends StatelessWidget {
             "Send friend request",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         );
@@ -108,21 +107,47 @@ class Contact extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(),
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text("$firstName $lastName"),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("$phoneNumber"),
-               selectCommunicationButton(id, relationshipStatus),
-            ],
-          )
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 140) {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Text("$firstName $lastName"),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("$phoneNumber"),
+                    selectCommunicationButton(id, relationshipStatus),
+                  ],
+                )
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Text("$firstName $lastName"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text("$phoneNumber"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    selectCommunicationButton(id, relationshipStatus),
+                  ],
+                )
+              ],
+            );
+          }
+        },
       ),
     );
   }

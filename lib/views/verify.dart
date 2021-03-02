@@ -124,38 +124,56 @@ class _VerifyState extends State<Verify> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Verify Phone Number')),
-      body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(
-            width: 350,
-            child: Text(
-              "A verification code has been sent to $phoneNumber",
-              textAlign: TextAlign.center,
-            )),
-        Container(
-            width: 350,
-            margin: const EdgeInsets.only(top: 15.0, bottom: 0),
-            child: Text(errorMessage, textAlign: TextAlign.center, style: TextStyle(color: Colors.red))),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-          child: TextField(
-            textAlign: TextAlign.center,
-            controller: verificationCodeController,
-            decoration: InputDecoration(
-              hintText: 'Enter verification code...',
-            ),
-          ),
-        ),
-        Container(
-            margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-            child: RaisedButton(
-                child: Text(
-                  'Verify',
-                  style: TextStyle(fontSize: 24),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                constraints.maxHeight > 200
+                    ? Container(
+                        width: 350,
+                        child: Text(
+                          "A verification code has been sent to $phoneNumber",
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                Container(
+                  width: 350,
+                  margin: const EdgeInsets.only(top: 15.0, bottom: 0),
+                  child: Text(
+                    errorMessage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
-                onPressed: verify)),
-      ])),
+                Container(
+                  width: 250,
+                  margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    controller: verificationCodeController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter verification code...',
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                  child: RaisedButton(
+                    child: Text(
+                      'Verify',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    onPressed: verify,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 

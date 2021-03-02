@@ -17,7 +17,7 @@ class AddFriendFromContacts extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 300.0,
-      width: 300.0,
+      width: 300,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: contactList.length,

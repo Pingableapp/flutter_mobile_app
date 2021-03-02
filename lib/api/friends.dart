@@ -139,18 +139,20 @@ Future<List<Friend>> lookupByPhoneNumbers(List<String> phoneNumbers, int userId)
   var results = jsonDecode(resPost.body);
 
   List<Friend> foundFriends = [];
-  for (var i = 0; i < results.length; ++i) {
-    var currResult = results[i];
-    foundFriends.add(
-      new Friend(
-        currResult["id"],
-        currResult["first_name"],
-        currResult["last_name"],
-        currResult["phone_number"],
-        currResult["status"],
-        null,
-      ),
-    );
+  if (results is List) {
+    for (var i = 0; i < results.length; ++i) {
+      var currResult = results[i];
+      foundFriends.add(
+        new Friend(
+          currResult["id"],
+          currResult["first_name"],
+          currResult["last_name"],
+          currResult["phone_number"],
+          currResult["status"],
+          null,
+        ),
+      );
+    }
   }
 
   return foundFriends;

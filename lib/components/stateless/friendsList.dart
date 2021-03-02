@@ -5,7 +5,6 @@ import 'package:pingable/components/stateless/friendInfo.dart';
 import 'package:pingable/models/friend.dart';
 import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 
-
 class FriendsList extends StatelessWidget {
   final List<Friend> listOfFriends;
 
@@ -26,26 +25,25 @@ class FriendsList extends StatelessWidget {
         itemCount: listOfFriends.length,
         itemBuilder: (BuildContext context, int index) {
           return Container(
-              width: 120,
-              margin: EdgeInsets.symmetric(horizontal: 5.0),
-              child: RaisedButton(
-                color: getPrimaryColor(listOfFriends[index].active),
-                padding: EdgeInsets.all(10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.black)),
-                onPressed: () {
-                  clickTrackingUseCase.recordClickTrackingEvent("show_friend", "click", "");
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        FriendInfo(friend: listOfFriends[index]),
-                  );
-                },
-                child: Align(
-                    child: Text(
-                        '${listOfFriends[index].firstName} ${listOfFriends[index].lastName}')),
-              ));
+            width: 140,
+            margin: EdgeInsets.symmetric(horizontal: 5.0),
+            child: RaisedButton(
+              color: getPrimaryColor(listOfFriends[index].active),
+              padding: EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0), side: BorderSide(color: Colors.black)),
+              onPressed: () {
+                clickTrackingUseCase.recordClickTrackingEvent("show_friend", "click", "");
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => FriendInfo(friend: listOfFriends[index]),
+                );
+              },
+              child: Center(
+                child: Text('${listOfFriends[index].firstName} ${listOfFriends[index].lastName}'),
+              ),
+            ),
+          );
         });
   }
 }
