@@ -81,6 +81,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
   }
 
   void refresh() async {
+    print("add_friend_dialog_refresh");
     List<FriendRequest> friendRequests =
         FriendRequest.sortListFirstLast(await friendRequestsUseCase.getFriendRequests());
     setState(() {

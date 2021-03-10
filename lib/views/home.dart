@@ -51,6 +51,7 @@ class _HomeState extends State<Home> {
   }
 
   void refresh() async {
+    print("home_refresh");
     await fetchPingableStatuses();
     List<Friend> _listOfFriends = await friendsAPI.getFriendsList(userId);
     int updatedFriendRequests = await friendRequestsUseCase.getFriendRequestsCount();
