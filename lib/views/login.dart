@@ -7,7 +7,6 @@ import 'package:pingable/configuration/api.dart';
 import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 import 'package:pingable/views/verify.dart';
 
-
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -67,61 +66,69 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
       body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(
-            width: 350,
-            child: Text(errorMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red))),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(top: 5.0, bottom: 15.0),
-          child: TextField(
-            textAlign: TextAlign.center,
-            controller: phoneNumberController,
-            decoration: InputDecoration(
-              hintText: 'Enter your phone number',
-            ),
-          ),
-        ),
-        Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Spacer(),
             Container(
-                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                child: RaisedButton(
-                  child: Text(
-                    'Login',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  onPressed: () async {
-                    clickTrackingUseCase.recordClickTrackingEvent("login_submit", "click", "");
-                    phoneNumber = phoneNumberController.text;
-                    var result =
-                        await requestPhoneVerificationCode(phoneNumber);
-                    if (result == 0) {
-                      _navigateToVerify(context);
-                    }
-                  },
-                )),
+                width: 350,
+                child: Text(errorMessage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red))),
             Container(
-                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                child: RaisedButton(
-                  child: Text(
-                    'Back',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  onPressed: () {
-                    clickTrackingUseCase.recordClickTrackingEvent("login_back", "click", "");
-                    Navigator.pop(context);
-                  },
-                )),
-            Spacer()
+              width: 250,
+              margin: const EdgeInsets.only(top: 5.0, bottom: 15.0),
+              child: TextField(
+                textAlign: TextAlign.center,
+                controller: phoneNumberController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your phone number',
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Spacer(),
+                Container(
+                    margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                    child: ElevatedButton(
+                      child: Text(
+                        'Login',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      onPressed: () async {
+                        clickTrackingUseCase.recordClickTrackingEvent(
+                            "login_submit", "click", "");
+                        phoneNumber = phoneNumberController.text;
+                        var result =
+                            await requestPhoneVerificationCode(phoneNumber);
+                        if (result == 0) {
+                          _navigateToVerify(context);
+                        }
+                      },
+                    )),
+                Container(
+                    margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                    child: ElevatedButton(
+                      child: Text(
+                        'Back',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      onPressed: () {
+                        clickTrackingUseCase.recordClickTrackingEvent(
+                            "login_back", "click", "");
+                        Navigator.pop(context);
+                      },
+                    )),
+                Spacer()
+              ],
+            ),
           ],
-        )
-      ])),
+        ),
+      ),
     );
   }
 
@@ -134,10 +141,11 @@ class _LoginState extends State<Login> {
 
   void _navigateToVerify(BuildContext context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Verify(phoneNumber, userId),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (context) => Verify(phoneNumber, userId),
+      ),
+    );
   }
 
   void _navigateToLogin(BuildContext context) {

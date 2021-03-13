@@ -11,7 +11,8 @@ import 'package:pingable/models/friend.dart';
 import 'package:pingable/models/status.dart';
 import 'package:pingable/models/user.dart';
 import 'package:pingable/shared/sharedPref.dart';
-import 'package:pingable/use_cases/friendRequests.dart' as friendRequestsUseCase;
+import 'package:pingable/use_cases/friendRequests.dart'
+    as friendRequestsUseCase;
 import 'package:pingable/use_cases/screenSize.dart' as screenSizeUseCase;
 import 'package:pingable/use_cases/users.dart' as usersUseCase;
 
@@ -38,8 +39,10 @@ class _HomeState extends State<Home> {
     super.initState();
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) => refresh());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      screenSizeUseCase.setScreenWidth(MediaQuery.of(context).size.width.toInt());
-      screenSizeUseCase.setScreenHeight(MediaQuery.of(context).size.height.toInt());
+      screenSizeUseCase
+          .setScreenWidth(MediaQuery.of(context).size.width.toInt());
+      screenSizeUseCase
+          .setScreenHeight(MediaQuery.of(context).size.height.toInt());
     });
   }
 
@@ -54,18 +57,21 @@ class _HomeState extends State<Home> {
     print("home_refresh");
     await fetchPingableStatuses();
     List<Friend> _listOfFriends = await friendsAPI.getFriendsList(userId);
-    int updatedFriendRequests = await friendRequestsUseCase.getFriendRequestsCount();
+    int updatedFriendRequests =
+        await friendRequestsUseCase.getFriendRequestsCount();
 
-    setState(() {
-      listOfFriends = _listOfFriends;
-      isLoading = false;
-      friendRequests = updatedFriendRequests;
-    });
+    if (mounted) {
+      setState(() {
+        listOfFriends = _listOfFriends;
+        isLoading = false;
+        friendRequests = updatedFriendRequests;
+      });
+    }
   }
 
   void fetchPingableStatuses() async {
-    // 39 is coming from here
-    List<Status> statusList = await pingableStatusAPI.getPingableAllStatus(userId);
+    List<Status> statusList =
+        await pingableStatusAPI.getPingableAllStatus(userId);
 
     bool updatedCurrentlyPingable = false;
     for (var i = 0; i < statusList.length; i++) {
@@ -81,7 +87,8 @@ class _HomeState extends State<Home> {
 
   void flipCurrentlyPingable() async {
     // Loop through statuses to determine current "all" statusId
-    List<Status> statuses = await pingableStatusAPI.getPingableAllStatus(userId);
+    List<Status> statuses =
+        await pingableStatusAPI.getPingableAllStatus(userId);
     int allStatusID = -1;
     for (var i = 0; i < statuses.length; i++) {
       if (statuses[i].type == "all") {
@@ -121,19 +128,22 @@ class _HomeState extends State<Home> {
     return new WillPopScope(
         child: Scaffold(
           appBar: AppBar(
-            title: isLoading ? Text("Pingable") : Text('Pingable - ${user.firstName} ${user.lastName}'),
+            title: isLoading
+                ? Text("Pingable")
+                : Text('Pingable - ${user.firstName} ${user.lastName}'),
             actions: <Widget>[
               Padding(
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AppBarActions(),
-                      );
-                    },
-                    child: Icon(Icons.more_vert),
-                  )),
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AppBarActions(),
+                    );
+                  },
+                  child: Icon(Icons.more_vert),
+                ),
+              ),
             ],
           ),
           body: isLoading
@@ -146,7 +156,9 @@ class _HomeState extends State<Home> {
                     ),
                     Container(
                         margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                        child: Center(child: PingableCircle(currentlyPingable, flipCurrentlyPingable)))
+                        child: Center(
+                            child: PingableCircle(
+                                currentlyPingable, flipCurrentlyPingable)))
                   ],
                 ),
         ),

@@ -33,7 +33,8 @@ class _VerifyState extends State<Verify> {
 
   Future<String> getAuthToken(int userId, String verificationCode) async {
     // Check to see if verification code is valid & retrieve auth token
-    var getUrl = '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
+    var getUrl =
+        '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code
@@ -123,7 +124,9 @@ class _VerifyState extends State<Verify> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Verify Phone Number')),
+      appBar: AppBar(
+        title: Text('Verify Phone Number'),
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Center(
@@ -161,7 +164,7 @@ class _VerifyState extends State<Verify> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     child: Text(
                       'Verify',
                       style: TextStyle(fontSize: 24),

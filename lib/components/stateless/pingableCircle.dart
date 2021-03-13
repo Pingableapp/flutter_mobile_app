@@ -19,36 +19,45 @@ class PingableCircle extends StatelessWidget {
 
   Color getPrimaryColor(bool active) {
     if (active) {
-      return Colors.green;
+      return Colors.blue;
     } else {
-      return Colors.red;
+      return Colors.grey;
     }
   }
 
   Color getSplashColor(bool active) {
     if (active) {
-      return Colors.red;
+      return Colors.grey;
     } else {
-      return Colors.green;
+      return Colors.blue;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 200,
-        height: 125,
-        child: RaisedButton(
-            color: getPrimaryColor(active),
-            padding: EdgeInsets.all(10),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0), side: BorderSide(color: Colors.black)),
-            onPressed: () {
-              clickTrackingUseCase.recordClickTrackingEvent("update_pingable_status", "click", "active: $active");
-              onPressed();
-            },
-            child: Align(
-              child: Text(getButtonText(active)),
-            )));
+      width: 200,
+      height: 125,
+      child: ElevatedButton(
+        style: TextButton.styleFrom(
+          backgroundColor: getPrimaryColor(active),
+          padding: EdgeInsets.all(10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+            side: BorderSide(color: Colors.black),
+          ),
+        ),
+        onPressed: () {
+          clickTrackingUseCase.recordClickTrackingEvent(
+              "update_pingable_status", "click", "active: $active");
+          onPressed();
+        },
+        child: Align(
+          child: Text(
+            getButtonText(active),
+          ),
+        ),
+      ),
+    );
   }
 }

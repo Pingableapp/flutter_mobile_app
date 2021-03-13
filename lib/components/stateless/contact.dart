@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-typedef void StringCallback(int id, String firstName, String lastName, String phoneNumber);
+typedef void StringCallback(
+    int id, String firstName, String lastName, String phoneNumber);
 
 class Contact extends StatelessWidget {
   final int id;
@@ -22,8 +23,10 @@ class Contact extends StatelessWidget {
 
   Widget selectCommunicationButton(int id, int relationshipStatus) {
     if (id == null) {
-      return RaisedButton(
-        color: Colors.blue,
+      return ElevatedButton(
+        style: TextButton.styleFrom(
+          primary: Colors.blue,
+        ),
         onPressed: () => callback(id, firstName, lastName, phoneNumber),
         child: Text(
           "Invite to Pingable",
@@ -37,8 +40,10 @@ class Contact extends StatelessWidget {
 
     switch (relationshipStatus) {
       case 0:
-        return RaisedButton(
-          color: Colors.blue,
+        return ElevatedButton(
+          style: TextButton.styleFrom(
+            primary: Colors.blue,
+          ),
           onPressed: null,
           child: Text(
             "Request sent",
@@ -49,8 +54,10 @@ class Contact extends StatelessWidget {
           ),
         );
       case 1:
-        return RaisedButton(
-          color: Colors.blue,
+        return ElevatedButton(
+          style: TextButton.styleFrom(
+            primary: Colors.blue,
+          ),
           onPressed: null,
           child: Text(
             "Already added",
@@ -61,8 +68,10 @@ class Contact extends StatelessWidget {
           ),
         );
       case 2:
-        return RaisedButton(
-          color: Colors.blue,
+        return ElevatedButton(
+          style: TextButton.styleFrom(
+            primary: Colors.blue,
+          ),
           onPressed: null,
           child: Text(
             "Cannot add",
@@ -73,8 +82,10 @@ class Contact extends StatelessWidget {
           ),
         );
       case 3:
-        return RaisedButton(
-          color: Colors.blue,
+        return ElevatedButton(
+          style: TextButton.styleFrom(
+            primary: Colors.blue,
+          ),
           onPressed: null,
           child: Text(
             "Cannot add",
@@ -85,8 +96,10 @@ class Contact extends StatelessWidget {
           ),
         );
       default:
-        return RaisedButton(
-          color: Colors.blue,
+        return ElevatedButton(
+          style: TextButton.styleFrom(
+            primary: Colors.blue,
+          ),
           onPressed: () => callback(id, firstName, lastName, phoneNumber),
           child: Text(
             "Send friend request",

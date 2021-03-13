@@ -156,18 +156,4 @@ Future<List<Friend>> lookupByPhoneNumbers(List<String> phoneNumbers, int userId)
   }
 
   return foundFriends;
-
-  // List<Friend> unsortedFriendsList = [];
-  // var friends = jsonDecode(resGet.body)["results"];
-  // for (var i = 0; i < friends.length; i++) {
-  //   String firstName = capitalize(friends[i]["first_name"]);
-  //   String lastName = capitalize(friends[i]["last_name"]);
-  //   String phoneNumber = friends[i]["phone_number"];
-  //   int relationshipStatus = friends[i]["relationship_status"];
-  //   bool active = friends[i]["availability_status"] == 1;
-  //   int id = friends[i]["id"];
-  //   unsortedFriendsList.add(new Friend(
-  //       id, firstName, lastName, phoneNumber, relationshipStatus, active));
-  // }
-  // return unsortedFriendsList;
 }

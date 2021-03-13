@@ -7,8 +7,6 @@ import 'package:pingable/configuration/api.dart';
 import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 import 'package:pingable/views/verify.dart';
 
-
-
 class CreateAccount extends StatefulWidget {
   @override
   _CreateAccountState createState() => _CreateAccountState();
@@ -144,103 +142,111 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create Account')),
+      appBar: AppBar(
+        title: Text('Create Account'),
+      ),
       body: Center(
-          child: ListView(children: [
-        Container(
-            margin: const EdgeInsets.only(top: 20.0, bottom: 5.0),
-            width: 350,
-            child: Text(errorMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red))),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(
-              top: 5.0, bottom: 20.0, left: 25, right: 25),
-          child: TextField(
-            textAlign: TextAlign.left,
-            controller: phoneNumberController,
-            decoration: InputDecoration(
-              hintText: 'Enter your phone number',
-            ),
-          ),
-        ),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(
-              top: 5.0, bottom: 20.0, left: 25, right: 25),
-          child: TextField(
-            textAlign: TextAlign.left,
-            controller: emailController,
-            decoration: InputDecoration(
-              hintText: 'Enter your email address',
-            ),
-          ),
-        ),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(
-              top: 5.0, bottom: 20.0, left: 25, right: 25),
-          child: TextField(
-            textAlign: TextAlign.left,
-            controller: firstNameController,
-            decoration: InputDecoration(
-              hintText: 'Enter your first name',
-            ),
-          ),
-        ),
-        Container(
-          width: 250,
-          margin: const EdgeInsets.only(
-              top: 5.0, bottom: 20.0, left: 25, right: 25),
-          child: TextField(
-            textAlign: TextAlign.left,
-            controller: lastNameController,
-            decoration: InputDecoration(
-              hintText: 'Enter your last name',
-            ),
-          ),
-        ),
-        Row(
+        child: ListView(
           children: [
-            Spacer(),
             Container(
-                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                child: RaisedButton(
-                  child: Text(
-                    'Create',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  onPressed: () async {
-                    clickTrackingUseCase.recordClickTrackingEvent("create_account_submit", "click", "");
-                    phoneNumber = phoneNumberController.text;
-                    String email = emailController.text;
-                    String firstName = firstNameController.text;
-                    String lastName = lastNameController.text;
-                    var result = await requestCreateNewAccount(
-                        phoneNumber, email, firstName, lastName);
-                    if (result == 0) {
-                      await requestPhoneVerificationCode(phoneNumber);
-                      _navigateToVerify(context);
-                    }
-                  },
-                )),
+                margin: const EdgeInsets.only(top: 20.0, bottom: 5.0),
+                width: 350,
+                child: Text(errorMessage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red))),
             Container(
-                margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                child: RaisedButton(
-                  child: Text(
-                    'Back',
-                    style: TextStyle(fontSize: 24),
+              width: 250,
+              margin: const EdgeInsets.only(
+                  top: 5.0, bottom: 20.0, left: 25, right: 25),
+              child: TextField(
+                textAlign: TextAlign.left,
+                controller: phoneNumberController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your phone number',
+                ),
+              ),
+            ),
+            Container(
+              width: 250,
+              margin: const EdgeInsets.only(
+                  top: 5.0, bottom: 20.0, left: 25, right: 25),
+              child: TextField(
+                textAlign: TextAlign.left,
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your email address',
+                ),
+              ),
+            ),
+            Container(
+              width: 250,
+              margin: const EdgeInsets.only(
+                  top: 5.0, bottom: 20.0, left: 25, right: 25),
+              child: TextField(
+                textAlign: TextAlign.left,
+                controller: firstNameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your first name',
+                ),
+              ),
+            ),
+            Container(
+              width: 250,
+              margin: const EdgeInsets.only(
+                  top: 5.0, bottom: 20.0, left: 25, right: 25),
+              child: TextField(
+                textAlign: TextAlign.left,
+                controller: lastNameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your last name',
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Spacer(),
+                Container(
+                    margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                    child: ElevatedButton(
+                      child: Text(
+                        'Create',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      onPressed: () async {
+                        clickTrackingUseCase.recordClickTrackingEvent(
+                            "create_account_submit", "click", "");
+                        phoneNumber = phoneNumberController.text;
+                        String email = emailController.text;
+                        String firstName = firstNameController.text;
+                        String lastName = lastNameController.text;
+                        var result = await requestCreateNewAccount(
+                            phoneNumber, email, firstName, lastName);
+                        if (result == 0) {
+                          await requestPhoneVerificationCode(phoneNumber);
+                          _navigateToVerify(context);
+                        }
+                      },
+                    )),
+                Container(
+                  margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+                  child: ElevatedButton(
+                    child: Text(
+                      'Back',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    onPressed: () {
+                      clickTrackingUseCase.recordClickTrackingEvent(
+                          "create_account_back", "click", "");
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () {
-                    clickTrackingUseCase.recordClickTrackingEvent("create_account_back", "click", "");
-                    Navigator.pop(context);
-                  },
-                )),
-            Spacer()
+                ),
+                Spacer()
+              ],
+            ),
           ],
-        )
-      ])),
+        ),
+      ),
     );
   }
 
@@ -256,9 +262,10 @@ class _CreateAccountState extends State<CreateAccount> {
 
   void _navigateToVerify(BuildContext context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Verify(phoneNumber, userId),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (context) => Verify(phoneNumber, userId),
+      ),
+    );
   }
 }

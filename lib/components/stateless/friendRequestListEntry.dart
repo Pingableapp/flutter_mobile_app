@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 
-
 typedef void StringCallback(int sendingUserId, String receivingPhoneNumber);
 
 class FriendRequestListEntry extends StatelessWidget {
@@ -35,16 +34,20 @@ class FriendRequestListEntry extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text("${StringUtils.capitalize(sendingFirstName)} ${StringUtils.capitalize(sendingLastName)}"),
+              Text(
+                  "${StringUtils.capitalize(sendingFirstName)} ${StringUtils.capitalize(sendingLastName)}"),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RaisedButton(
-                color: Colors.blue,
+              ElevatedButton(
+                style: TextButton.styleFrom(
+                  primary: Colors.blue,
+                ),
                 onPressed: () {
-                  clickTrackingUseCase.recordClickTrackingEvent("accept_friend_request", "click", "");
+                  clickTrackingUseCase.recordClickTrackingEvent(
+                      "accept_friend_request", "click", "");
                   callback(sendingUserId, receivingPhoneNumber);
                 },
                 child: Text(

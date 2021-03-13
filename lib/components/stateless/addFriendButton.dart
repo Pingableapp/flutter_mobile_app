@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:pingable/components/stateful/addFriendDialog.dart';
 import 'package:pingable/use_cases/clickTracking.dart' as clickTrackingUseCase;
 
-
 class AddFriendButton extends StatelessWidget {
   final int friendRequests;
 
@@ -14,18 +13,21 @@ class AddFriendButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 5.0, right: 5.0),
-      child: RaisedButton(
-          child: Align(
-            child:
-                Text(friendRequests != null && friendRequests > 0 ? "Add a friend ($friendRequests)" : "Add a friend"),
-          ),
-          onPressed: () {
-            clickTrackingUseCase.recordClickTrackingEvent("add_a_friend", "click", "");
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => AddFriendDialog(),
-            );
-          }),
+      child: ElevatedButton(
+        child: Align(
+          child: Text(friendRequests != null && friendRequests > 0
+              ? "Add a friend ($friendRequests)"
+              : "Add a friend"),
+        ),
+        onPressed: () {
+          clickTrackingUseCase.recordClickTrackingEvent(
+              "add_a_friend", "click", "");
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => AddFriendDialog(),
+          );
+        },
+      ),
     );
   }
 }

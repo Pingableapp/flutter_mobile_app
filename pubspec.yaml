@@ -29,7 +29,7 @@ dependencies:
   contacts_service: ^0.4.6
   permission_handler: ^5.1.0+2
   basic_utils: ^1.2.0
-
+  device_info: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -4,7 +4,6 @@ import 'package:pingable/components/stateless/addFriendButton.dart';
 import 'package:pingable/components/stateless/friendsList.dart';
 import 'package:pingable/models/friend.dart';
 
-
 class Friends extends StatelessWidget {
   final List<Friend> listOfFriends;
   final int friendRequests;
@@ -32,9 +31,12 @@ class Friends extends StatelessWidget {
           ],
         ),
         Container(
-            margin: EdgeInsets.only(top: 5.0),
-            height: 75.0,
-            child: FriendsList(listOfFriends: filterAcceptedFriends(listOfFriends)))
+          margin: EdgeInsets.only(top: 5.0),
+          height: 75.0,
+          child: FriendsList(
+            listOfFriends: filterAcceptedFriends(listOfFriends),
+          ),
+        ),
       ],
     );
   }

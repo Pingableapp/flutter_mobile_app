@@ -12,38 +12,47 @@ class FriendsList extends StatelessWidget {
 
   Color getPrimaryColor(bool active) {
     if (active) {
-      return Colors.green;
+      return Colors.blue;
     } else {
-      return Colors.red;
+      return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: listOfFriends.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-            width: 140,
-            margin: EdgeInsets.symmetric(horizontal: 5.0),
-            child: RaisedButton(
-              color: getPrimaryColor(listOfFriends[index].active),
+      scrollDirection: Axis.horizontal,
+      itemCount: listOfFriends.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          width: 140,
+          margin: EdgeInsets.symmetric(horizontal: 5.0),
+          child: ElevatedButton(
+            style: TextButton.styleFrom(
+              backgroundColor: getPrimaryColor(listOfFriends[index].active),
               padding: EdgeInsets.all(10),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0), side: BorderSide(color: Colors.black)),
-              onPressed: () {
-                clickTrackingUseCase.recordClickTrackingEvent("show_friend", "click", "");
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => FriendInfo(friend: listOfFriends[index]),
-                );
-              },
-              child: Center(
-                child: Text('${listOfFriends[index].firstName} ${listOfFriends[index].lastName}'),
+                borderRadius: BorderRadius.circular(18.0),
+                side: BorderSide(color: Colors.black),
               ),
             ),
-          );
-        });
+            onPressed: () {
+              clickTrackingUseCase.recordClickTrackingEvent(
+                  "show_friend", "click", "");
+              showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    FriendInfo(friend: listOfFriends[index]),
+              );
+            },
+            child: Center(
+              child: Text(
+                '${listOfFriends[index].firstName} ${listOfFriends[index].lastName}',
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

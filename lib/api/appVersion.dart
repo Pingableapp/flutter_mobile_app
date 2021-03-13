@@ -5,14 +5,19 @@ import 'package:http/http.dart' as http;
 import 'package:pingable/configuration/api.dart';
 
 Future<double> getAppVersion() async {
-  // Check to see if verification code is valid & retrieve auth token
-  var getUrl = '$apiEndpoint/app_version';
-  http.Response resGet = await http.get(getUrl);
+  try {
+    // Check to see if verification code is valid & retrieve auth token
+    var getUrl = '$apiEndpoint/app_version';
+    http.Response resGet = await http.get(getUrl).timeout(const Duration(seconds: 2));
 
-  // Ensure proper status code
-  if (resGet.statusCode != 200) {
-    return 0.0;
+    // Ensure proper status code
+    if (resGet.statusCode != 200) {
+      return 0.0;
+    }
+
+    return jsonDecode(resGet.body)["minimum_app_version"];
+  } catch (e) {
+    throw new Exception("Failed to retrieve app version.");
   }
 
-  return jsonDecode(resGet.body)["minimum_app_version"];
 }

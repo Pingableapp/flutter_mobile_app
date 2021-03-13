@@ -37,10 +37,11 @@ class FriendInfo extends StatelessWidget {
         children: <Widget>[
           Text("Currently Pingable: ${isAvailable(friend.active)}"),
           Text("Phone number: ${friend.phoneNumber}"),
-          RaisedButton(
+          ElevatedButton(
             onPressed: friend.active
                 ? () {
-                    clickTrackingUseCase.recordClickTrackingEvent("call_friend", "click", "");
+                    clickTrackingUseCase.recordClickTrackingEvent(
+                        "call_friend", "click", "");
                     _makePhoneCall('tel://${friend.phoneNumber}');
                   }
                 : null,
@@ -49,11 +50,13 @@ class FriendInfo extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-        new FlatButton(
+        new TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          textColor: Theme.of(context).primaryColor,
+          style: TextButton.styleFrom(
+            primary: Theme.of(context).primaryColor,
+          ),
           child: const Text('Close'),
         ),
       ],

@@ -14,22 +14,23 @@ class FriendRequestList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300.0,
-      width: 300.0,
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: friendRequestList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return FriendRequestListEntry(
-            sendingUserId: friendRequestList[index].sendingUserId,
-            sendingFirstName: friendRequestList[index].sendingFirstName,
-            sendingLastName: friendRequestList[index].sendingLastName,
-            receivingPhoneNumber: friendRequestList[index].receivingPhoneNumber,
-            expirationTimestamp: friendRequestList[index].expirationTimestamp,
-            callback: callback,
-          );
-        },
+    return SingleChildScrollView(
+      child: Container(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: friendRequestList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return FriendRequestListEntry(
+              sendingUserId: friendRequestList[index].sendingUserId,
+              sendingFirstName: friendRequestList[index].sendingFirstName,
+              sendingLastName: friendRequestList[index].sendingLastName,
+              receivingPhoneNumber:
+                  friendRequestList[index].receivingPhoneNumber,
+              expirationTimestamp: friendRequestList[index].expirationTimestamp,
+              callback: callback,
+            );
+          },
+        ),
       ),
     );
   }
