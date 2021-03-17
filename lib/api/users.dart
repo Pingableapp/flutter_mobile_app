@@ -23,3 +23,4 @@ Future<User> getUser(int userId) async {
 
   return new User(id, firstName, lastName, phoneNumber);
 }
+

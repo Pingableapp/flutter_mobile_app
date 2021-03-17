@@ -6,4 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--  Disable this for production release! This is dev only  -->
+    <application android:usesCleartextTraffic="true">
+    </application>
 </manifest>
+

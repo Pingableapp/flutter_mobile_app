@@ -4,6 +4,10 @@ class User {
 
   User(this.id, this.firstName, this.lastName, this.phoneNumber);
 
+  String get fullName {
+    return this.firstName + " " + this.lastName;
+  }
+
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         firstName = json['firstName'],
