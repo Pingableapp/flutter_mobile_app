@@ -35,10 +35,10 @@ class AddFriendFromContacts extends StatelessWidget {
           ),
         ),
         Container(
-          height: MediaQuery.of(context).size.height * .6,
+          height: MediaQuery.of(context).size.height * .5,
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: contactList.length,
+            itemCount: contactList != null ? contactList.length : 0,
             itemBuilder: (BuildContext context, int index) {
               return Contact(
                 id: contactList[index].id,
