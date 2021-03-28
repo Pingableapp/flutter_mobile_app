@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
   Future<int> requestPhoneVerificationCode(String phoneNumber) async {
     // Verify proper phone number format
     RegExp exp = new RegExp(r"^[0-9]{1,3}-[0-9]{3}-[0-9]{3}-[0-9]{4}$");
+    phoneNumber = phoneNumber.replaceAll('\t', '').replaceAll(' ', '');
     bool matchFound = exp.hasMatch(phoneNumber);
     if (!matchFound) {
       setState(() {
@@ -39,8 +40,7 @@ class _LoginState extends State<Login> {
     var resultsGet = jsonDecode(resGet.body)["results"];
     if (resultsGet.length != 1) {
       setState(() {
-        errorMessage =
-            "Account does not exist for number $phoneNumber. Please create a new account.";
+        errorMessage = "Account does not exist for number $phoneNumber. Please create a new account.";
       });
       return -1;
     }
@@ -75,9 +75,7 @@ class _LoginState extends State<Login> {
           children: [
             Container(
                 width: 350,
-                child: Text(errorMessage,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.red))),
+                child: Text(errorMessage, textAlign: TextAlign.center, style: TextStyle(color: Colors.red))),
             Container(
               width: 250,
               margin: const EdgeInsets.only(top: 5.0, bottom: 15.0),
@@ -100,11 +98,9 @@ class _LoginState extends State<Login> {
                         style: TextStyle(fontSize: 24),
                       ),
                       onPressed: () async {
-                        clickTrackingUseCase.recordClickTrackingEvent(
-                            "login_submit", "click", "");
-                        phoneNumber = phoneNumberController.text;
-                        var result =
-                            await requestPhoneVerificationCode(phoneNumber);
+                        clickTrackingUseCase.recordClickTrackingEvent("login_submit", "click", "");
+                        phoneNumber = phoneNumberController.text.replaceAll('\t', '').replaceAll(' ', '');
+                        var result = await requestPhoneVerificationCode(phoneNumber);
                         if (result == 0) {
                           _navigateToVerify(context);
                         }
@@ -118,8 +114,7 @@ class _LoginState extends State<Login> {
                         style: TextStyle(fontSize: 24),
                       ),
                       onPressed: () {
-                        clickTrackingUseCase.recordClickTrackingEvent(
-                            "login_back", "click", "");
+                        clickTrackingUseCase.recordClickTrackingEvent("login_back", "click", "");
                         Navigator.pop(context);
                       },
                     )),

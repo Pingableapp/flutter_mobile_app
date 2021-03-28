@@ -33,8 +33,7 @@ class _VerifyState extends State<Verify> {
 
   Future<String> getAuthToken(int userId, String verificationCode) async {
     // Check to see if verification code is valid & retrieve auth token
-    var getUrl =
-        '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
+    var getUrl = '$apiEndpoint/users/$userId/auth_tokens?verification_code=$verificationCode';
     http.Response resGet = await http.get(getUrl);
 
     // Ensure proper status code
@@ -100,7 +99,7 @@ class _VerifyState extends State<Verify> {
     clickTrackingUseCase.recordClickTrackingEvent("verify", "click", "");
 
     // Attempt to obtain authToken
-    String verificationCodeString = verificationCodeController.text;
+    String verificationCodeString = verificationCodeController.text.replaceAll('\t', '').replaceAll(' ', '');
     var authToken = await validateVerificationCode(verificationCodeString);
 
     // Check for success

@@ -24,8 +24,13 @@ class _CreateAccountState extends State<CreateAccount> {
 
   Future<int> requestCreateNewAccount(String phoneNumber, String email,
       String firstName, String lastName) async {
+    setState(() {
+      errorMessage = "";
+    });
+
     // Verify proper phone number format
     RegExp exp = new RegExp(r"^[0-9]{1,3}-[0-9]{3}-[0-9]{3}-[0-9]{4}$");
+    phoneNumber = phoneNumber.replaceAll(' ', '').replaceAll('\t', '');
     bool matchFound = exp.hasMatch(phoneNumber);
     if (!matchFound) {
       setState(() {
@@ -37,7 +42,7 @@ class _CreateAccountState extends State<CreateAccount> {
     // Verify proper email format
     exp = new RegExp(
         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-    email = email.toLowerCase();
+    email = email.toLowerCase().replaceAll(' ', '').replaceAll('\t', '');
     matchFound = exp.hasMatch(email);
     if (!matchFound) {
       setState(() {
@@ -215,8 +220,8 @@ class _CreateAccountState extends State<CreateAccount> {
                       onPressed: () async {
                         clickTrackingUseCase.recordClickTrackingEvent(
                             "create_account_submit", "click", "");
-                        phoneNumber = phoneNumberController.text;
-                        String email = emailController.text;
+                        phoneNumber = phoneNumberController.text.replaceAll('\t', '').replaceAll(' ', '');
+                        String email = emailController.text.replaceAll('\t', '').replaceAll(' ', '');
                         String firstName = firstNameController.text;
                         String lastName = lastNameController.text;
                         var result = await requestCreateNewAccount(

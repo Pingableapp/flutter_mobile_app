@@ -14,11 +14,13 @@ class AppBarActions extends StatelessWidget {
         children: <Widget>[
           ElevatedButton(
             onPressed: () async {
-              clickTrackingUseCase.recordClickTrackingEvent(
-                  "logout", "click", "");
+              clickTrackingUseCase.recordClickTrackingEvent("logout", "click", "");
               usersUseCase.resetLoggedInUserID();
               usersUseCase.resetAuthToken();
               Navigator.pushNamed(context, '/accounts');
+              // TODO: Delete timers for fetching updates on logout
+              // TODO: at the moment the timer exists after logout
+              // TODO: applies to getting relationships and statuses
             },
             child: const Text('Logout'),
           ),
@@ -27,8 +29,7 @@ class AppBarActions extends StatelessWidget {
       actions: <Widget>[
         new TextButton(
           onPressed: () {
-            clickTrackingUseCase.recordClickTrackingEvent(
-                "close_app_bar", "click", "");
+            clickTrackingUseCase.recordClickTrackingEvent("close_app_bar", "click", "");
             Navigator.of(context).pop();
           },
           style: TextButton.styleFrom(
