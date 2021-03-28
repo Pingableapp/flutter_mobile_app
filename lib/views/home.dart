@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 3), (Timer t) => refresh());
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => refresh());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       screenSizeUseCase
           .setScreenWidth(MediaQuery.of(context).size.width.toInt());

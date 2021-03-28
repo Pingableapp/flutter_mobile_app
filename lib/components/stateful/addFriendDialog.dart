@@ -98,7 +98,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 3), (Timer t) => refresh());
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => refresh());
   }
 
   @override

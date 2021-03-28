@@ -30,6 +30,10 @@ Future sendFriendRequest(int sendingUserId, int receivingUserId) async {
 }
 
 Future<List<FriendRequest>> getFriendRequests(int userId) async {
+  if (userId == null) {
+    return [];
+  }
+
   // Check to see if verification code is valid & retrieve auth token
   var getUrl = '$apiEndpoint/users/$userId/friend_requests';
   http.Response resGet = await http.get(getUrl);
